@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\Notice;
 use App\Models\Attendance;
 use App\Models\Subject;
+use App\Models\StudentLeaveRequest;
 use Illuminate\View\View;
 
 class SchoolDashboardController extends Controller
@@ -37,9 +38,22 @@ class SchoolDashboardController extends Controller
                               ->orderBy('section')
                               ->get();
 
+        // Student leave requests (pending first, then recent)
+        $leaveRequests = StudentLeaveRequest::where('school_id', $schoolId)
+            ->with(['parent', 'students', 'students.studentDetail.class'])
+            ->orderByRaw("FIELD(status, 'pending', 'approved', 'rejected')")
+            ->orderByDesc('created_at')
+            ->take(10)
+            ->get();
+
+        $pendingLeavesCount = StudentLeaveRequest::where('school_id', $schoolId)
+            ->where('status', 'pending')
+            ->count();
+
         return view('school.dashboard.index', compact(
             'totalStudents', 'totalTeachers', 'totalClasses',
-            'totalSubjects', 'totalParents', 'notices', 'classes'
+            'totalSubjects', 'totalParents', 'notices', 'classes',
+            'leaveRequests', 'pendingLeavesCount'
         ));
     }
 }

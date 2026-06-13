@@ -22,6 +22,7 @@ use App\Http\Controllers\School\FeeStructureController;
 use App\Http\Controllers\School\FeePaymentController;
 use App\Http\Controllers\School\SearchController;
 use App\Http\Controllers\School\SupportController as SchoolSupportController;
+use App\Http\Controllers\School\LeaveRequestController;
 use App\Http\Controllers\Auth\AuthController;
 use Illuminate\Support\Facades\Route;
 
@@ -149,6 +150,10 @@ Route::middleware(['auth', 'verified', 'role:school-admin'])
         Route::post('/support', [SchoolSupportController::class, 'store'])->name('support.store');
         Route::get('/support/{ticket}', [SchoolSupportController::class, 'show'])->name('support.show');
         Route::post('/support/{ticket}/message', [SchoolSupportController::class, 'message'])->name('support.message');
+
+        // Leave Requests (from parents)
+        Route::patch('/leave-requests/{leaveRequest}/approve', [LeaveRequestController::class, 'approve'])->name('leave-requests.approve');
+        Route::patch('/leave-requests/{leaveRequest}/reject', [LeaveRequestController::class, 'reject'])->name('leave-requests.reject');
     });
 
 Route::middleware('auth')->group(function () {
