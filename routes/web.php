@@ -22,10 +22,10 @@ use App\Http\Controllers\School\FeeStructureController;
 use App\Http\Controllers\School\FeePaymentController;
 use App\Http\Controllers\School\SearchController;
 use App\Http\Controllers\School\SupportController as SchoolSupportController;
-use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Auth\AuthController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', [AuthenticatedSessionController::class, 'create'])
+Route::get('/', [AuthController::class, 'showLogin'])
     ->middleware('guest');
 
 Route::get('/dashboard', function () {

@@ -35,3 +35,5 @@ Thumbs.db
 Homestead.json
 Homestead.yaml
 package-lock.json
+backend_data_requirements.md
+api_documentation.md

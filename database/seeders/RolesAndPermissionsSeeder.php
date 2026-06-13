@@ -48,6 +48,10 @@ class RolesAndPermissionsSeeder extends Seeder
             ['email' => 'admin@auracampus.com'],
             [
                 'name' => 'Alex Rivera',
+                'first_name' => 'Alex',
+                'last_name' => 'Rivera',
+                'user_name' => 'alex_rivera',
+                'user_type' => 1, // Admin
                 'password' => Hash::make('password'),
                 'school_id' => null,
             ]
@@ -76,6 +80,10 @@ class RolesAndPermissionsSeeder extends Seeder
             ['email' => 'principal@greenwood.com'],
             [
                 'name' => 'Principal James',
+                'first_name' => 'Principal',
+                'last_name' => 'James',
+                'user_name' => 'principal_james',
+                'user_type' => 1, // Admin
                 'password' => Hash::make('password'),
                 'school_id' => $school->id,
             ]
@@ -146,10 +154,17 @@ class RolesAndPermissionsSeeder extends Seeder
 
         $teachers = [];
         foreach ($teachersData as $td) {
+            $nameParts = explode(' ', $td['name'], 2);
+            $firstName = $nameParts[0];
+            $lastName = $nameParts[1] ?? '';
             $user = User::firstOrCreate(
                 ['email' => $td['email']],
                 [
                     'name' => $td['name'],
+                    'first_name' => $firstName,
+                    'last_name' => $lastName,
+                    'user_name' => Str::slug($td['name'], '_'),
+                    'user_type' => 2, // Teacher
                     'password' => Hash::make('password'),
                     'school_id' => $school->id,
                 ]
@@ -194,10 +209,17 @@ class RolesAndPermissionsSeeder extends Seeder
         $studentUsers = [];
         foreach ($studentNames as $idx => $sName) {
             $email = Str::slug($sName, '.') . '@student.greenwood.com';
+            $nameParts = explode(' ', $sName, 2);
+            $firstName = $nameParts[0];
+            $lastName = $nameParts[1] ?? '';
             $user = User::firstOrCreate(
                 ['email' => $email],
                 [
                     'name' => $sName,
+                    'first_name' => $firstName,
+                    'last_name' => $lastName,
+                    'user_name' => Str::slug($sName, '_'),
+                    'user_type' => 3, // Student
                     'password' => Hash::make('password'),
                     'school_id' => $school->id,
                 ]
@@ -223,10 +245,16 @@ class RolesAndPermissionsSeeder extends Seeder
         }
 
         // ── 9. Create Demo Parent ──
+        $parentName = 'Rajesh Patel';
+        $parentNameParts = explode(' ', $parentName, 2);
         $parentUser = User::firstOrCreate(
             ['email' => 'rajesh.patel@gmail.com'],
             [
-                'name' => 'Rajesh Patel',
+                'name' => $parentName,
+                'first_name' => $parentNameParts[0],
+                'last_name' => $parentNameParts[1] ?? '',
+                'user_name' => Str::slug($parentName, '_'),
+                'user_type' => 4, // Parent
                 'password' => Hash::make('password'),
                 'school_id' => $school->id,
             ]

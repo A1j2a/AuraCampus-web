@@ -6,7 +6,7 @@ use App\Http\Controllers\Api\Parent\ParentApiController;
 use Illuminate\Support\Facades\Route;
 
 // Public login endpoint
-Route::post('/login', [AuthController::class, 'login']);
+Route::post('/auth/login', [AuthController::class, 'login']);
 
 // Authenticated API endpoints
 Route::middleware('auth:sanctum')->group(function () {
