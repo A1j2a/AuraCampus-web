@@ -34,6 +34,7 @@ class User extends Authenticatable
         'user_type',
         'email',
         'phone',
+        'profile_image',
         'password',
         'school_id',
         'device_info',

@@ -18,6 +18,7 @@ class School extends Model
         'address',
         'status',
         'logo_path',
+        'font_family',
         'settings',
     ];
 

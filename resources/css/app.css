@@ -137,8 +137,15 @@
 
 /* Custom Premium Animations & Utilities */
 @keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-6px); }
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-6px);
+    }
 }
 
 @utility tech-canvas {
@@ -181,19 +188,23 @@
     background-size: 24px 24px;
     background-attachment: fixed;
 }
+
 @utility glass-panel {
     background: #ffffff;
     border: 1px solid rgba(15, 23, 42, 0.06);
 }
+
 @utility glass-card {
     background: #ffffff;
     border: 1px solid rgba(15, 23, 42, 0.06);
 }
+
 @utility glass-input {
     background: #ffffff;
     border: 1px solid rgba(15, 23, 42, 0.12);
     color: #0f172a;
 }
+
 @utility glass-input-focus {
     border-color: rgba(99, 102, 241, 0.5);
 }
@@ -209,17 +220,33 @@
 
 /* Floating Spheres animations */
 @keyframes floatSphere1 {
-    0%, 100% { transform: translate(0, 0) scale(1); }
-    50% { transform: translate(15px, -15px) scale(1.02); }
+
+    0%,
+    100% {
+        transform: translate(0, 0) scale(1);
+    }
+
+    50% {
+        transform: translate(15px, -15px) scale(1.02);
+    }
 }
+
 @keyframes floatSphere2 {
-    0%, 100% { transform: translate(0, 0) scale(1); }
-    50% { transform: translate(-15px, 15px) scale(0.98); }
+
+    0%,
+    100% {
+        transform: translate(0, 0) scale(1);
+    }
+
+    50% {
+        transform: translate(-15px, 15px) scale(0.98);
+    }
 }
 
 .animate-sphere-1 {
     animation: floatSphere1 12s ease-in-out infinite;
 }
+
 .animate-sphere-2 {
     animation: floatSphere2 16s ease-in-out infinite;
 }
@@ -256,6 +283,7 @@ select:-webkit-autofill:focus {
     from {
         opacity: 0;
     }
+
     to {
         opacity: 1;
     }
@@ -327,6 +355,7 @@ main table tbody tr:hover {
         opacity: 0;
         transform: scale(0.95) translateY(10px);
     }
+
     to {
         opacity: 1;
         transform: scale(1) translateY(0);
@@ -342,6 +371,7 @@ main table tbody tr:hover {
     0% {
         background-position: -200% 0;
     }
+
     100% {
         background-position: 200% 0;
     }
@@ -354,9 +384,9 @@ main table tbody tr:hover {
 }
 
 /* Automatic modal zoom entry */
-.fixed.inset-0.z-\[100\] > div.bg-white,
-.fixed.inset-0.z-50 > div.bg-white,
-.fixed.inset-0.z-40 > div.bg-white {
+.fixed.inset-0.z-\[100\]>div.bg-white,
+.fixed.inset-0.z-50>div.bg-white,
+.fixed.inset-0.z-40>div.bg-white {
     animation: modalEnter 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
 
@@ -365,10 +395,12 @@ main table tbody tr:hover {
     from {
         opacity: 0;
     }
+
     to {
         opacity: 1;
     }
 }
+
 .fixed.inset-0.bg-slate-900\/30,
 .fixed.inset-0.bg-slate-900\/40 {
     animation: fadeInBackdrop 0.25s ease-out forwards;
@@ -388,19 +420,23 @@ a.button:not([disabled]):active {
 /* Sidebar pre-JS layout shift prevention rules */
 @media (min-width: 1024px) {
     html.sidebar-collapsed aside {
-        width: 5rem !important; /* lg:w-20 */
-        padding-left: 0.5rem !important; /* lg:px-2 */
+        width: 5rem !important;
+        /* lg:w-20 */
+        padding-left: 0.5rem !important;
+        /* lg:px-2 */
         padding-right: 0.5rem !important;
     }
+
     html.sidebar-collapsed .lg\:ml-64 {
-        margin-left: 5rem !important; /* lg:ml-20 */
+        margin-left: 5rem !important;
+        /* lg:ml-20 */
     }
+
     html.sidebar-collapsed [x-show="!sidebarCollapsed"] {
         display: none !important;
     }
+
     html.sidebar-collapsed [x-show="sidebarCollapsed"] {
         display: flex !important;
     }
 }
-
-

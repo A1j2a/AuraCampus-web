@@ -18,8 +18,9 @@
         <table class="w-full text-left border-collapse text-xs">
             <thead>
                 <tr class="bg-slate-50 border-b border-slate-100 font-mono text-[9px] text-slate-400 uppercase tracking-wider">
-                    <th class="px-6 py-4">Admin Name</th>
+                    <th class="px-6 py-4">Admin</th>
                     <th class="px-6 py-4">Email Address</th>
+                    <th class="px-6 py-4">Role</th>
                     <th class="px-6 py-4">Assigned Campus</th>
                     <th class="px-6 py-4">Registered Date</th>
                     <th class="px-6 py-4">Status</th>
@@ -30,9 +31,13 @@
                 <tr class="hover:bg-slate-50/50 transition-all duration-150">
                     <td class="px-6 py-4">
                         <div class="flex items-center gap-3">
+                            @if($admin->profile_image)
+                            <img src="{{ asset('storage/' . $admin->profile_image) }}" alt="{{ $admin->name }}" class="w-8 h-8 rounded-lg object-cover border border-slate-100 shrink-0">
+                            @else
                             <div class="w-8 h-8 rounded-lg bg-purple-50 border border-purple-100 flex items-center justify-center text-purple-600 font-bold shrink-0">
                                 {{ strtoupper(substr($admin->name, 0, 2)) }}
                             </div>
+                            @endif
                             <span class="font-bold text-slate-800">{{ $admin->name }}</span>
                         </div>
                     </td>
@@ -40,9 +45,22 @@
                         {{ $admin->email }}
                     </td>
                     <td class="px-6 py-4">
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-indigo-50 text-indigo-700 border border-indigo-100 text-[9px] font-bold rounded-full uppercase">
+                            <span class="material-symbols-outlined text-[12px]">shield_person</span>
+                            {{ $admin->getRoleNames()->first() ?? 'school-admin' }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4">
                         @if($admin->school)
-                        <span class="font-bold text-slate-800">{{ $admin->school->name }}</span>
-                        <span class="block text-[9px] text-slate-400 font-mono mt-0.5">slug: {{ $admin->school->slug }}</span>
+                        <div class="flex items-center gap-2">
+                            @if($admin->school->logo_path)
+                            <img src="{{ asset('storage/' . $admin->school->logo_path) }}" alt="{{ $admin->school->name }}" class="w-5 h-5 rounded object-cover shrink-0 border border-slate-100">
+                            @endif
+                            <div>
+                                <span class="font-bold text-slate-800">{{ $admin->school->name }}</span>
+                                <span class="block text-[9px] text-slate-400 font-mono mt-0.5">slug: {{ $admin->school->slug }}</span>
+                            </div>
+                        </div>
                         @else
                         <span class="text-slate-400 italic">No Campus Assigned</span>
                         @endif
@@ -62,7 +80,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="5" class="px-6 py-12 text-center text-slate-405 italic">
+                    <td colspan="6" class="px-6 py-12 text-center text-slate-405 italic">
                         <span class="material-symbols-outlined text-4xl mb-3 block">admin_panel_settings</span>
                         No school admins registered yet.
                     </td>

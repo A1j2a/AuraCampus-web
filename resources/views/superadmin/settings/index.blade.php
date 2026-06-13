@@ -58,6 +58,42 @@
                             </div>
                         </div>
 
+                        <!-- Font Family Selector -->
+                        <div x-data="{ selectedFont: 'Inter' }">
+                            <label class="block text-xs font-semibold text-slate-700 mb-1.5">
+                                <span class="flex items-center gap-1.5">
+                                    <span class="material-symbols-outlined text-[16px] text-indigo-500">font_download</span>
+                                    Global Font Family
+                                </span>
+                            </label>
+                            <p class="text-[9px] text-slate-400 mb-2 font-medium">This sets the default font across the entire platform for all campuses.</p>
+                            <select name="font_family" x-model="selectedFont"
+                                    class="w-full px-4 py-2.5 premium-input rounded-xl text-xs font-medium focus:outline-none focus:premium-input-focus-indigo text-slate-700 cursor-pointer">
+                                <option value="Inter">Inter (Default)</option>
+                                <option value="Poppins">Poppins</option>
+                                <option value="Roboto">Roboto</option>
+                                <option value="Outfit">Outfit</option>
+                                <option value="Manrope">Manrope</option>
+                                <option value="Nunito">Nunito</option>
+                                <option value="Open Sans">Open Sans</option>
+                                <option value="Lato">Lato</option>
+                                <option value="Montserrat">Montserrat</option>
+                                <option value="Raleway">Raleway</option>
+                                <option value="Source Sans Pro">Source Sans Pro</option>
+                                <option value="Work Sans">Work Sans</option>
+                            </select>
+                            <!-- Font Preview -->
+                            <div class="mt-3 p-3 bg-slate-50 rounded-xl border border-slate-100">
+                                <p class="text-[9px] font-mono text-slate-400 uppercase tracking-wider mb-2 font-bold">Preview</p>
+                                <p class="text-sm text-slate-800 font-semibold" :style="'font-family: ' + selectedFont + ', sans-serif'">
+                                    The quick brown fox jumps over the lazy dog.
+                                </p>
+                                <p class="text-xs text-slate-500 mt-1" :style="'font-family: ' + selectedFont + ', sans-serif'">
+                                    AaBbCcDdEeFfGg 0123456789
+                                </p>
+                            </div>
+                        </div>
+
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
                             <div>
                                 <label class="block text-xs font-semibold text-slate-700 mb-1.5">Support Email</label>

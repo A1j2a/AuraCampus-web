@@ -66,6 +66,7 @@
                     <tr class="border-b border-slate-100 bg-slate-50/50">
                         <th class="px-6 py-4 font-mono text-[9px] text-slate-400 uppercase tracking-wider">Campus</th>
                         <th class="px-6 py-4 font-mono text-[9px] text-slate-400 uppercase tracking-wider">Contact</th>
+                        <th class="px-6 py-4 font-mono text-[9px] text-slate-400 uppercase tracking-wider">Admin</th>
                         <th class="px-6 py-4 font-mono text-[9px] text-slate-400 uppercase tracking-wider">Users</th>
                         <th class="px-6 py-4 font-mono text-[9px] text-slate-400 uppercase tracking-wider">Status</th>
                         <th class="px-6 py-4 font-mono text-[9px] text-slate-400 uppercase tracking-wider">Provisioned</th>
@@ -76,9 +77,13 @@
                     <tr class="hover:bg-slate-50/50 transition-all duration-150">
                         <td class="px-6 py-4">
                             <div class="flex items-center gap-3">
+                                @if($school->logo_path)
+                                <img src="{{ asset('storage/' . $school->logo_path) }}" alt="{{ $school->name }}" class="w-9 h-9 rounded-xl border border-slate-100 object-cover shadow-sm shrink-0">
+                                @else
                                 <div class="w-9 h-9 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 text-xs font-bold shadow-sm shrink-0">
                                     {{ strtoupper(substr($school->name, 0, 2)) }}
                                 </div>
+                                @endif
                                 <div>
                                     <p class="text-xs font-bold text-slate-800">{{ $school->name }}</p>
                                     <p class="text-[9px] text-slate-400 font-mono mt-0.5">{{ $school->slug }}</p>
@@ -88,6 +93,25 @@
                         <td class="px-6 py-4">
                             <p class="text-xs text-slate-600">{{ $school->email ?? '—' }}</p>
                             <p class="text-[9px] text-slate-400 font-mono">{{ $school->phone ?? '' }}</p>
+                        </td>
+                        <td class="px-6 py-4">
+                            @if($school->admin)
+                            <div class="flex items-center gap-2.5">
+                                @if($school->admin->profile_image)
+                                <img src="{{ asset('storage/' . $school->admin->profile_image) }}" alt="{{ $school->admin->name }}" class="w-7 h-7 rounded-lg object-cover border border-slate-100 shrink-0">
+                                @else
+                                <div class="w-7 h-7 rounded-lg bg-purple-50 border border-purple-100 flex items-center justify-center text-purple-600 text-[10px] font-bold shrink-0">
+                                    {{ strtoupper(substr($school->admin->name, 0, 2)) }}
+                                </div>
+                                @endif
+                                <div>
+                                    <p class="text-xs font-semibold text-slate-700">{{ $school->admin->name }}</p>
+                                    <p class="text-[9px] text-slate-400 font-mono">{{ $school->admin->getRoleNames()->first() ?? 'school-admin' }}</p>
+                                </div>
+                            </div>
+                            @else
+                            <span class="text-[10px] text-slate-400 italic">No admin assigned</span>
+                            @endif
                         </td>
                         <td class="px-6 py-4">
                             <span class="text-xs font-mono font-bold text-slate-700">{{ $school->users_count }}</span>
@@ -104,7 +128,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="5" class="px-6 py-12 text-center">
+                        <td colspan="6" class="px-6 py-12 text-center">
                             <span class="material-symbols-outlined text-indigo-600 text-4xl mb-3 animate-float-slow">database</span>
                             <h4 class="text-sm font-bold text-slate-800 mb-1">No Campuses Provisioned</h4>
                             <p class="text-xs text-slate-500">Click "Provision Campus" to onboard a school.</p>
@@ -119,7 +143,27 @@
     <!-- Provision Campus Modal -->
     <div x-show="showModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center p-4" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
         <div class="fixed inset-0 bg-slate-900/30 backdrop-blur-sm" @click="showModal = false"></div>
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6 relative z-10 border border-slate-200/60 max-h-[90vh] overflow-y-auto" @click.stop>
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6 relative z-10 border border-slate-200/60 max-h-[90vh] overflow-y-auto" @click.stop
+             x-data="{
+                 logoPreview: null,
+                 profilePreview: null,
+                 handleLogoUpload(event) {
+                     const file = event.target.files[0];
+                     if (file) {
+                         const reader = new FileReader();
+                         reader.onload = (e) => this.logoPreview = e.target.result;
+                         reader.readAsDataURL(file);
+                     }
+                 },
+                 handleProfileUpload(event) {
+                     const file = event.target.files[0];
+                     if (file) {
+                         const reader = new FileReader();
+                         reader.onload = (e) => this.profilePreview = e.target.result;
+                         reader.readAsDataURL(file);
+                     }
+                 }
+             }">
             <div class="flex justify-between items-center mb-6">
                 <div>
                     <h3 class="text-base font-bold text-slate-900">Provision New Campus</h3>
@@ -129,12 +173,31 @@
                     <span class="material-symbols-outlined text-[20px]">close</span>
                 </button>
             </div>
-            <form method="POST" action="{{ route('superadmin.schools.store') }}">
+            <form method="POST" action="{{ route('superadmin.schools.store') }}" enctype="multipart/form-data">
                 @csrf
                 <div class="space-y-4">
                     <div class="p-3 bg-indigo-50/50 rounded-xl border border-indigo-100">
                         <h4 class="text-[10px] font-mono font-bold text-indigo-600 uppercase tracking-wider mb-3">School Details</h4>
                         <div class="space-y-3">
+                            <!-- School Logo Upload -->
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1.5">School Logo <span class="text-slate-400 font-normal">(Optional)</span></label>
+                                <div class="flex items-center gap-3">
+                                    <div class="w-14 h-14 rounded-xl border-2 border-dashed border-slate-200 flex items-center justify-center overflow-hidden bg-slate-50 shrink-0 transition-all hover:border-indigo-300">
+                                        <template x-if="logoPreview">
+                                            <img :src="logoPreview" alt="Logo Preview" class="w-full h-full object-cover rounded-xl">
+                                        </template>
+                                        <template x-if="!logoPreview">
+                                            <span class="material-symbols-outlined text-slate-300 text-[24px]">add_photo_alternate</span>
+                                        </template>
+                                    </div>
+                                    <div class="flex-1">
+                                        <input type="file" name="school_logo" accept="image/*" @change="handleLogoUpload($event)"
+                                               class="w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-600 hover:file:bg-indigo-100 file:cursor-pointer cursor-pointer">
+                                        <p class="text-[9px] text-slate-400 mt-1">JPG, PNG, SVG or WebP. Max 2MB.</p>
+                                    </div>
+                                </div>
+                            </div>
                             <div>
                                 <label class="block text-xs font-semibold text-slate-700 mb-1.5">School Name</label>
                                 <input type="text" name="name" placeholder="e.g. Emerald High School" required
@@ -157,16 +220,44 @@
                                 <input type="text" name="address" placeholder="Full school address"
                                        class="w-full px-4 py-2.5 premium-input rounded-xl text-xs font-medium focus:outline-none focus:premium-input-focus placeholder-slate-300">
                             </div>
+
+
                         </div>
                     </div>
 
                     <div class="p-3 bg-emerald-50/50 rounded-xl border border-emerald-100">
                         <h4 class="text-[10px] font-mono font-bold text-emerald-600 uppercase tracking-wider mb-3">Admin Account</h4>
                         <div class="space-y-3">
+                            <!-- Admin Profile Image -->
                             <div>
-                                <label class="block text-xs font-semibold text-slate-700 mb-1.5">Administrator Name</label>
-                                <input type="text" name="admin_name" placeholder="e.g. Dr. John Smith" required
-                                       class="w-full px-4 py-2.5 premium-input rounded-xl text-xs font-medium focus:outline-none focus:premium-input-focus-emerald placeholder-slate-300">
+                                <label class="block text-xs font-semibold text-slate-700 mb-1.5">Profile Image <span class="text-slate-400 font-normal">(Optional)</span></label>
+                                <div class="flex items-center gap-3">
+                                    <div class="w-12 h-12 rounded-full border-2 border-dashed border-slate-200 flex items-center justify-center overflow-hidden bg-slate-50 shrink-0 transition-all hover:border-emerald-300">
+                                        <template x-if="profilePreview">
+                                            <img :src="profilePreview" alt="Profile Preview" class="w-full h-full object-cover rounded-full">
+                                        </template>
+                                        <template x-if="!profilePreview">
+                                            <span class="material-symbols-outlined text-slate-300 text-[20px]">person</span>
+                                        </template>
+                                    </div>
+                                    <div class="flex-1">
+                                        <input type="file" name="admin_profile_image" accept="image/*" @change="handleProfileUpload($event)"
+                                               class="w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-600 hover:file:bg-emerald-100 file:cursor-pointer cursor-pointer">
+                                        <p class="text-[9px] text-slate-400 mt-1">JPG, PNG, SVG or WebP. Max 2MB.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 mb-1.5">Administrator Name</label>
+                                    <input type="text" name="admin_name" placeholder="e.g. Dr. John Smith" required
+                                           class="w-full px-4 py-2.5 premium-input rounded-xl text-xs font-medium focus:outline-none focus:premium-input-focus-emerald placeholder-slate-300">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 mb-1.5">Role / Designation</label>
+                                    <input type="text" name="admin_role" placeholder="e.g. Principal"
+                                           class="w-full px-4 py-2.5 premium-input rounded-xl text-xs font-medium focus:outline-none focus:premium-input-focus-emerald placeholder-slate-300">
+                                </div>
                             </div>
                             <div>
                                 <label class="block text-xs font-semibold text-slate-700 mb-1.5">Admin Email</label>
