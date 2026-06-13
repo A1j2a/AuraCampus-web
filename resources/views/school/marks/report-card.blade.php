@@ -37,7 +37,7 @@
             <span class="material-symbols-outlined text-[16px]">close</span>
             Close Window
         </button>
-        <button onclick="window.print()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-all cursor-pointer shadow-sm flex items-center gap-2">
+        <button onclick="window.print()" class="px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold rounded-xl transition-all cursor-pointer shadow-sm flex items-center gap-2">
             <span class="material-symbols-outlined text-[16px]">print</span>
             Print Report Card
         </button>
@@ -67,7 +67,7 @@
         </div>
 
         <div class="text-center mb-8">
-            <h2 class="text-base font-black tracking-widest text-slate-900 uppercase underline decoration-2 decoration-emerald-500 underline-offset-4">
+            <h2 class="text-base font-black tracking-widest text-slate-900 uppercase underline decoration-2 decoration-violet-500 underline-offset-4">
                 {{ $exam->name }} Progress Report
             </h2>
         </div>
@@ -126,7 +126,7 @@
                         </td>
                         <td class="px-6 py-4 text-center">
                             @if($isPassed)
-                            <span class="text-[9px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-150 px-2 py-0.5 rounded font-mono uppercase">Pass</span>
+                            <span class="text-[9px] font-bold text-violet-700 bg-violet-50 border border-violet-150 px-2 py-0.5 rounded font-mono uppercase">Pass</span>
                             @else
                             <span class="text-[9px] font-bold text-rose-700 bg-rose-50 border border-rose-150 px-2 py-0.5 rounded font-mono uppercase">Fail</span>
                             @endif
@@ -168,15 +168,15 @@
                 </div>
                 <div class="flex justify-between items-center">
                     <span class="text-slate-400 font-mono text-[9px] uppercase tracking-wider">Overall Percentage</span>
-                    <span class="font-bold font-mono text-sm text-emerald-400">{{ $overallPercentage }}%</span>
+                    <span class="font-bold font-mono text-sm text-violet-400">{{ $overallPercentage }}%</span>
                 </div>
                 <div class="flex justify-between items-center">
                     <span class="text-slate-400 font-mono text-[9px] uppercase tracking-wider">Overall Grade</span>
-                    <span class="font-bold font-mono text-sm px-2 py-0.5 bg-slate-850 rounded text-emerald-400">{{ $overallGrade }}</span>
+                    <span class="font-bold font-mono text-sm px-2 py-0.5 bg-slate-850 rounded text-violet-400">{{ $overallGrade }}</span>
                 </div>
                 <div class="border-t border-slate-800 pt-3 flex justify-between items-center">
                     <span class="text-slate-400 font-mono text-[9px] uppercase tracking-wider">Result status</span>
-                    <span class="font-black font-mono text-sm tracking-wider {{ $resultStatus === 'PASS' ? 'text-emerald-400' : 'text-rose-450' }}">
+                    <span class="font-black font-mono text-sm tracking-wider {{ $resultStatus === 'PASS' ? 'text-violet-400' : 'text-rose-450' }}">
                         {{ $resultStatus }}
                     </span>
                 </div>

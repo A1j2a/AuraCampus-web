@@ -3,61 +3,106 @@
 namespace App\Http\Controllers\School;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
-use App\Models\StudentDetail;
 use App\Models\SchoolClass;
+use App\Models\StudentDetail;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\View\View;
 
 class StudentController extends Controller
 {
     public function index(): View
     {
-        $students = User::where('school_id', auth()->user()->school_id)
-                        ->role('student')
-                        ->with(['studentDetail.class'])
-                        ->latest()
-                        ->get();
+        $schoolId = auth()->user()->school_id;
 
-        $classes = SchoolClass::orderBy('name')->orderBy('section')->get();
+        $query = User::where('school_id', $schoolId)
+            ->role('student')
+            ->with(['studentDetail.class', 'students', 'credential'])
+            ->latest();
+
+        // Filters
+        if (request('search')) {
+            $search = request('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%$search%")
+                  ->orWhereHas('studentDetail', fn($q) => $q->where('admission_number', 'like', "%$search%"));
+            });
+        }
+
+        if (request('class_id')) {
+            $query->whereHas('studentDetail', fn($q) => $q->where('class_id', request('class_id')));
+        }
+
+        if (request('status')) {
+            $query->whereHas('studentDetail', fn($q) => $q->where('status', request('status')));
+        }
+
+        $students = $query->get();
+
+        $classes = SchoolClass::where('school_id', $schoolId)
+            ->where('is_active', true)
+            ->orderBy('name')
+            ->orderBy('section')
+            ->get();
 
         return view('school.students.index', compact('students', 'classes'));
     }
 
-    public function store(Request $request): RedirectResponse
+    public function update(Request $request, User $student): RedirectResponse
     {
         $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:6',
-            'class_id' => 'required|exists:classes,id',
+            'name'             => 'required|string|max:255',
             'admission_number' => 'required|string|max:50',
-            'roll_number' => 'nullable|string|max:20',
-            'date_of_birth' => 'nullable|date',
-            'gender' => 'nullable|in:male,female,other',
+            'roll_number'      => 'nullable|string|max:20',
+            'dob'              => 'nullable|date',
+            'gender'           => 'nullable|in:male,female,other',
+            'blood_group'      => 'nullable|string|max:5',
+            'class_id'         => 'required|exists:classes,id',
         ]);
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'school_id' => auth()->user()->school_id,
-        ]);
-        $user->assignRole('student');
+        $student->update(['name' => $request->name]);
 
-        StudentDetail::create([
-            'user_id' => $user->id,
-            'school_id' => auth()->user()->school_id,
+        $student->studentDetail()->updateOrCreate(
+            ['user_id' => $student->id],
+            [
+                'school_id'        => $student->school_id,
+                'admission_number' => $request->admission_number,
+                'roll_number'      => $request->roll_number,
+                'date_of_birth'    => $request->dob,
+                'gender'           => $request->gender,
+                'blood_group'      => $request->blood_group,
+                'class_id'         => $request->class_id,
+            ]
+        );
+
+        return redirect()->route('school.students')->with('success', $student->name . ' updated successfully!');
+    }
+
+    public function updateStatus(Request $request, User $student): RedirectResponse
+    {
+        $request->validate([
+            'status' => 'required|in:active,inactive,transferred,graduated',
+        ]);
+
+        $student->studentDetail()->update(['status' => $request->status]);
+
+        return redirect()->route('school.students')
+            ->with('success', $student->name . ' status updated to ' . $request->status . '.');
+    }
+
+    public function transferClass(Request $request, User $student): RedirectResponse
+    {
+        $request->validate([
+            'class_id' => 'required|exists:classes,id',
+        ]);
+
+        $student->studentDetail()->update([
             'class_id' => $request->class_id,
-            'admission_number' => $request->admission_number,
-            'roll_number' => $request->roll_number,
-            'date_of_birth' => $request->date_of_birth,
-            'gender' => $request->gender,
+            'status'   => 'active',
         ]);
 
         return redirect()->route('school.students')
-                         ->with('success', $request->name . ' has been registered!');
+            ->with('success', $student->name . ' transferred successfully!');
     }
 }

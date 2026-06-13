@@ -16,7 +16,7 @@
             <!-- Select Exam -->
             <div>
                 <label class="block text-xs font-semibold text-slate-700 mb-1.5">Assessment Term</label>
-                <select name="exam_id" required class="w-full px-4 py-2.5 premium-input rounded-xl text-xs font-medium focus:outline-none focus:premium-input-focus-emerald appearance-none cursor-pointer bg-white">
+                <select name="exam_id" required class="w-full px-4 py-2.5 premium-input rounded-xl text-xs font-medium focus:outline-none focus:premium-input-focus-violet appearance-none cursor-pointer bg-white">
                     <option value="">Choose Exam Term</option>
                     @foreach($exams as $exam)
                     <option value="{{ $exam->id }}" {{ $selectedExamId == $exam->id ? 'selected' : '' }}>
@@ -29,7 +29,7 @@
             <!-- Select Class -->
             <div>
                 <label class="block text-xs font-semibold text-slate-700 mb-1.5">Classroom & Section</label>
-                <select name="class_id" required class="w-full px-4 py-2.5 premium-input rounded-xl text-xs font-medium focus:outline-none focus:premium-input-focus-emerald appearance-none cursor-pointer bg-white">
+                <select name="class_id" required class="w-full px-4 py-2.5 premium-input rounded-xl text-xs font-medium focus:outline-none focus:premium-input-focus-violet appearance-none cursor-pointer bg-white">
                     <option value="">Choose Class</option>
                     @foreach($classes as $class)
                     <option value="{{ $class->id }}" {{ $selectedClassId == $class->id ? 'selected' : '' }}>
@@ -41,7 +41,7 @@
 
             <!-- Submit Filters -->
             <div>
-                <button type="submit" class="w-full px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-all cursor-pointer shadow-sm flex items-center justify-center gap-2">
+                <button type="submit" class="w-full px-5 py-2.5 bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold rounded-xl transition-all cursor-pointer shadow-sm flex items-center justify-center gap-2">
                     <span class="material-symbols-outlined text-[16px]">filter_alt</span>
                     Fetch Student List
                 </button>

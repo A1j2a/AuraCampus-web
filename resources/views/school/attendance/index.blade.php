@@ -12,7 +12,7 @@
     </div>
 
     @if(session('success'))
-    <div class="mb-6 p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-xs font-semibold text-emerald-700 flex items-center gap-2">
+    <div class="mb-6 p-4 bg-violet-50 border border-violet-200 rounded-xl text-xs font-semibold text-violet-700 flex items-center gap-2">
         <span class="material-symbols-outlined text-[18px]">check_circle</span>
         {{ session('success') }}
     </div>
@@ -23,7 +23,7 @@
         <form method="GET" action="{{ route('school.attendance') }}" class="flex flex-wrap items-end gap-4">
             <div>
                 <label class="block text-xs font-semibold text-slate-700 mb-1.5">Select Class</label>
-                <select name="class_id" onchange="this.form.submit()" class="px-4 py-2.5 premium-input rounded-xl text-xs font-medium focus:outline-none focus:premium-input-focus-emerald appearance-none cursor-pointer bg-white min-w-[180px]">
+                <select name="class_id" onchange="this.form.submit()" class="px-4 py-2.5 premium-input rounded-xl text-xs font-medium focus:outline-none focus:premium-input-focus-violet appearance-none cursor-pointer bg-white min-w-[180px]">
                     @foreach($classes as $class)
                     <option value="{{ $class->id }}" {{ $selectedClassId == $class->id ? 'selected' : '' }}>
                         {{ $class->name }} - Section {{ $class->section }}
@@ -34,7 +34,7 @@
             <div>
                 <label class="block text-xs font-semibold text-slate-700 mb-1.5">Date</label>
                 <input type="date" name="date" value="{{ $selectedDate }}" onchange="this.form.submit()"
-                       class="px-4 py-2.5 premium-input rounded-xl text-xs font-medium focus:outline-none focus:premium-input-focus-emerald">
+                       class="px-4 py-2.5 premium-input rounded-xl text-xs font-medium focus:outline-none focus:premium-input-focus-violet">
             </div>
         </form>
     </div>
@@ -88,7 +88,7 @@
                             </td>
                             <td class="px-6 py-3 text-center">
                                 <input type="radio" name="attendance[{{ $student->user_id }}]" value="present" {{ $existingStatus === 'present' ? 'checked' : '' }}
-                                       class="w-4 h-4 text-emerald-600 border-slate-300 focus:ring-emerald-500 cursor-pointer">
+                                       class="w-4 h-4 text-violet-600 border-slate-300 focus:ring-violet-500 cursor-pointer">
                             </td>
                             <td class="px-6 py-3 text-center">
                                 <input type="radio" name="attendance[{{ $student->user_id }}]" value="absent" {{ $existingStatus === 'absent' ? 'checked' : '' }}
@@ -108,7 +108,7 @@
                 </table>
             </div>
             <div class="p-4 border-t border-slate-100 flex justify-end">
-                <button type="submit" class="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-all cursor-pointer shadow-sm flex items-center gap-2">
+                <button type="submit" class="px-6 py-2.5 bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold rounded-xl transition-all cursor-pointer shadow-sm flex items-center gap-2">
                     <span class="material-symbols-outlined text-[16px]">save</span>
                     Save Attendance
                 </button>
@@ -117,7 +117,7 @@
     </form>
     @else
     <div class="premium-card p-12 rounded-2xl text-center">
-        <span class="material-symbols-outlined text-emerald-600 text-4xl mb-3 animate-float-slow">calendar_month</span>
+        <span class="material-symbols-outlined text-violet-600 text-4xl mb-3 animate-float-slow">calendar_month</span>
         <h4 class="text-sm font-bold text-slate-800 mb-1">No Students in This Class</h4>
         <p class="text-xs text-slate-500">Register students to this class before marking attendance.</p>
     </div>

@@ -8,6 +8,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Models\ParentDetail;
+use App\Models\TeacherClassSection;
+use App\Models\UserCredential;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
@@ -30,6 +33,7 @@ class User extends Authenticatable
         'user_name',
         'user_type',
         'email',
+        'phone',
         'password',
         'school_id',
         'device_info',
@@ -85,6 +89,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Get parent details (if user is a parent).
+     */
+    public function parentDetail(): HasOne
+    {
+        return $this->hasOne(ParentDetail::class);
+    }
+
+    /**
      * Get children associated with this parent user.
      */
     public function children(): HasMany
@@ -102,6 +114,30 @@ class User extends Authenticatable
         return $this->belongsToMany(User::class, 'parent_student', 'parent_id', 'student_id')
                     ->withPivot('relationship')
                     ->withTimestamps();
+    }
+
+    /**
+     * Get auto-generated credentials.
+     */
+    public function credential(): HasOne
+    {
+        return $this->hasOne(UserCredential::class);
+    }
+
+    /**
+     * Get teacher class section assignments.
+     */
+    public function teacherClassSections(): HasMany
+    {
+        return $this->hasMany(TeacherClassSection::class, 'teacher_id');
+    }
+
+    /**
+     * Get subjects this teacher can teach.
+     */
+    public function subjects(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(Subject::class, 'subject_teacher', 'teacher_id', 'subject_id')->withTimestamps();
     }
 
     /**

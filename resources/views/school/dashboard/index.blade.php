@@ -9,15 +9,15 @@
             <h2 class="text-xl font-bold text-slate-900 tracking-tight">{{ auth()->user()->school->name ?? 'School' }} Dashboard</h2>
             <p class="text-xs text-slate-500 mt-1">Manage daily school operations, academics, and student tracking.</p>
         </div>
-        <div class="px-3.5 py-1.5 rounded-xl border border-emerald-200 bg-emerald-50 text-[10px] font-mono text-emerald-700 flex items-center gap-2 shadow-sm">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_6px_#10b981] animate-pulse"></span>
+        <div class="px-3.5 py-1.5 rounded-xl border border-violet-200 bg-violet-50 text-[10px] font-mono text-violet-700 flex items-center gap-2 shadow-sm">
+            <span class="w-1.5 h-1.5 rounded-full bg-violet-500 shadow-[0_0_6px_#6C4CF1] animate-pulse"></span>
             SCHOOL LIVE
         </div>
     </header>
 
     <!-- Flash Messages -->
     @if(session('success'))
-    <div class="mb-6 p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-xs font-semibold text-emerald-700 flex items-center gap-2">
+    <div class="mb-6 p-4 bg-violet-50 border border-violet-200 rounded-xl text-xs font-semibold text-violet-700 flex items-center gap-2">
         <span class="material-symbols-outlined text-[18px]">check_circle</span>
         {{ session('success') }}
     </div>
@@ -37,51 +37,40 @@
             <h3 class="text-2xl font-bold text-slate-900 mt-1 tracking-tight">{{ number_format($totalStudents) }}</h3>
         </div>
 
-        <!-- Card 2: Faculty/Teachers -->
+        <!-- Card 2: Total Classes -->
         <div class="premium-card p-6 rounded-2xl hover:scale-[1.01] hover:shadow-md transition-all duration-300 relative group overflow-hidden cursor-pointer">
             <div class="absolute -right-10 -top-10 w-24 h-24 bg-cyan-500/5 rounded-full blur-2xl group-hover:scale-150 transition-all duration-500"></div>
             <div class="flex justify-between items-start mb-4">
                 <div class="p-2 bg-cyan-50 border border-cyan-100 text-cyan-600 rounded-xl shadow-sm">
-                    <span class="material-symbols-outlined text-[20px]">badge</span>
+                    <span class="material-symbols-outlined text-[20px]">class</span>
                 </div>
-                @if($totalStudents > 0 && $totalTeachers > 0)
-                <span class="flex items-center gap-1 text-[10px] font-bold text-cyan-700 bg-cyan-50 border border-cyan-200 px-2 py-0.5 rounded-full font-mono">
-                    RATIO 1:{{ round($totalStudents / $totalTeachers) }}
-                </span>
-                @endif
             </div>
-            <p class="text-[11px] text-slate-400 font-semibold tracking-wide uppercase font-mono">Active Teachers</p>
-            <h3 class="text-2xl font-bold text-slate-900 mt-1 tracking-tight">{{ $totalTeachers }}</h3>
+            <p class="text-[11px] text-slate-400 font-semibold tracking-wide uppercase font-mono">Total Classes</p>
+            <h3 class="text-2xl font-bold text-slate-900 mt-1 tracking-tight">{{ $totalClasses }}</h3>
         </div>
 
-        <!-- Card 3: Today's Attendance -->
+        <!-- Card 3: Total Parents -->
         <div class="premium-card p-6 rounded-2xl hover:scale-[1.01] hover:shadow-md transition-all duration-300 relative group overflow-hidden cursor-pointer">
-            <div class="absolute -right-10 -top-10 w-24 h-24 bg-emerald-500/5 rounded-full blur-2xl group-hover:scale-150 transition-all duration-500"></div>
+            <div class="absolute -right-10 -top-10 w-24 h-24 bg-violet-500/5 rounded-full blur-2xl group-hover:scale-150 transition-all duration-500"></div>
             <div class="flex justify-between items-start mb-4">
-                <div class="p-2 bg-emerald-50 border border-emerald-100 text-emerald-600 rounded-xl shadow-sm">
-                    <span class="material-symbols-outlined text-[20px]">calendar_month</span>
+                <div class="p-2 bg-violet-50 border border-violet-100 text-violet-600 rounded-xl shadow-sm">
+                    <span class="material-symbols-outlined text-[20px]">family_restroom</span>
                 </div>
             </div>
-            <p class="text-[11px] text-slate-400 font-semibold tracking-wide uppercase font-mono">Today's Attendance</p>
-            <h3 class="text-2xl font-bold text-slate-900 mt-1 tracking-tight">{{ $attendanceRate }}%</h3>
-            <div class="mt-4 h-1 w-full bg-slate-100 rounded-full overflow-hidden">
-                <div class="h-full bg-gradient-to-r from-emerald-500 to-emerald-600 transition-all duration-500" style="width: {{ $attendanceRate }}%"></div>
-            </div>
+            <p class="text-[11px] text-slate-400 font-semibold tracking-wide uppercase font-mono">Total Parents</p>
+            <h3 class="text-2xl font-bold text-slate-900 mt-1 tracking-tight">{{ $totalParents }}</h3>
         </div>
 
-        <!-- Card 4: Active Classes -->
+        <!-- Card 4: Total Subjects -->
         <div class="premium-card p-6 rounded-2xl hover:scale-[1.01] hover:shadow-md transition-all duration-300 relative group overflow-hidden cursor-pointer">
             <div class="absolute -right-10 -top-10 w-24 h-24 bg-amber-500/5 rounded-full blur-2xl group-hover:scale-150 transition-all duration-500"></div>
             <div class="flex justify-between items-start mb-4">
                 <div class="p-2 bg-amber-50 border border-amber-100 text-amber-600 rounded-xl shadow-sm">
-                    <span class="material-symbols-outlined text-[20px]">class</span>
+                    <span class="material-symbols-outlined text-[20px]">book</span>
                 </div>
             </div>
-            <p class="text-[11px] text-slate-400 font-semibold tracking-wide uppercase font-mono">Active Classes</p>
-            <h3 class="text-2xl font-bold text-slate-900 mt-1 tracking-tight">{{ $totalClasses }} Sections</h3>
-            <div class="mt-4 flex items-center justify-between text-[11px] text-slate-500 font-semibold border-t border-slate-100 pt-3">
-                <span>{{ $totalSubjects }} Subjects</span>
-            </div>
+            <p class="text-[11px] text-slate-400 font-semibold tracking-wide uppercase font-mono">Total Subjects</p>
+            <h3 class="text-2xl font-bold text-slate-900 mt-1 tracking-tight">{{ $totalSubjects }}</h3>
         </div>
     </div>
 
@@ -99,9 +88,9 @@
                 <div class="space-y-4">
                     @forelse($notices as $notice)
                     <div class="p-4 bg-slate-50/30 rounded-xl border border-slate-200/60 border-l-4 
-                        {{ $notice->type === 'academic' ? 'border-l-indigo-500' : ($notice->type === 'event' ? 'border-l-emerald-500' : ($notice->type === 'holiday' ? 'border-l-rose-500' : 'border-l-slate-400')) }}">
+                        {{ $notice->type === 'academic' ? 'border-l-indigo-500' : ($notice->type === 'event' ? 'border-l-violet-500' : ($notice->type === 'holiday' ? 'border-l-rose-500' : 'border-l-slate-400')) }}">
                         <span class="text-[9px] font-mono font-bold uppercase tracking-wider 
-                            {{ $notice->type === 'academic' ? 'text-indigo-600' : ($notice->type === 'event' ? 'text-emerald-600' : ($notice->type === 'holiday' ? 'text-rose-600' : 'text-slate-500')) }}">
+                            {{ $notice->type === 'academic' ? 'text-indigo-600' : ($notice->type === 'event' ? 'text-violet-600' : ($notice->type === 'holiday' ? 'text-rose-600' : 'text-slate-500')) }}">
                             {{ $notice->type }}
                         </span>
                         <h5 class="text-xs font-bold text-slate-800 mt-1">{{ $notice->title }}</h5>
@@ -123,7 +112,7 @@
                         <span class="material-symbols-outlined text-indigo-500 text-[20px]">school</span>
                         Class Registry
                     </h4>
-                    <a href="{{ route('school.classes') }}" class="text-emerald-600 hover:text-emerald-700 text-xs font-semibold transition-colors">View All →</a>
+                    <a href="{{ route('school.classes') }}" class="text-violet-600 hover:text-violet-700 text-xs font-semibold transition-colors">View All →</a>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse">
@@ -153,7 +142,7 @@
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="4" class="px-4 py-6 text-center text-xs text-slate-400">No classes created yet. <a href="{{ route('school.classes') }}" class="text-emerald-600 font-semibold">Add one now →</a></td>
+                                <td colspan="4" class="px-4 py-6 text-center text-xs text-slate-400">No classes created yet. <a href="{{ route('school.classes') }}" class="text-violet-600 font-semibold">Add one now →</a></td>
                             </tr>
                             @endforelse
                         </tbody>

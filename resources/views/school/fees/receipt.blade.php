@@ -37,7 +37,7 @@
             <span class="material-symbols-outlined text-[16px]">close</span>
             Close
         </button>
-        <button onclick="window.print()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-all cursor-pointer shadow-sm flex items-center gap-2">
+        <button onclick="window.print()" class="px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold rounded-xl transition-all cursor-pointer shadow-sm flex items-center gap-2">
             <span class="material-symbols-outlined text-[16px]">print</span>
             Print Receipt
         </button>
@@ -66,7 +66,7 @@
         </div>
 
         <div class="text-center mb-6">
-            <h2 class="text-xs font-bold tracking-widest text-slate-850 uppercase underline decoration-2 decoration-emerald-500 underline-offset-2">
+            <h2 class="text-xs font-bold tracking-widest text-slate-850 uppercase underline decoration-2 decoration-violet-500 underline-offset-2">
                 FEE TRANSACTION RECEIPT
             </h2>
         </div>

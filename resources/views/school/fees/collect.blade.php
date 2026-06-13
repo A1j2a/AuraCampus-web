@@ -29,7 +29,7 @@
 
     <!-- Collection Form Card -->
     <div class="premium-card p-6 rounded-2xl bg-white border border-slate-200/60 shadow-sm relative overflow-hidden">
-        <div class="absolute -right-20 -top-20 w-48 h-48 bg-emerald-500/5 rounded-full blur-2xl"></div>
+        <div class="absolute -right-20 -top-20 w-48 h-48 bg-violet-500/5 rounded-full blur-2xl"></div>
 
         <form method="POST" action="{{ route('school.fees.payments.store') }}">
             @csrf
@@ -38,7 +38,7 @@
                 <!-- Select Student -->
                 <div>
                     <label class="block text-xs font-semibold text-slate-700 mb-1.5">Select Student</label>
-                    <select name="student_id" required class="w-full px-4 py-2.5 premium-input rounded-xl text-xs font-medium focus:outline-none focus:premium-input-focus-emerald appearance-none cursor-pointer bg-white">
+                    <select name="student_id" required class="w-full px-4 py-2.5 premium-input rounded-xl text-xs font-medium focus:outline-none focus:premium-input-focus-violet appearance-none cursor-pointer bg-white">
                         <option value="">Choose Student</option>
                         @foreach($students as $student)
                         <option value="{{ $student->id }}">
@@ -55,7 +55,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-semibold text-slate-700 mb-1.5">Fee Category</label>
-                        <select name="fee_structure_id" required x-model="selectedFee" @change="updateAmount()" class="w-full px-4 py-2.5 premium-input rounded-xl text-xs font-medium focus:outline-none focus:premium-input-focus-emerald appearance-none cursor-pointer bg-white">
+                        <select name="fee_structure_id" required x-model="selectedFee" @change="updateAmount()" class="w-full px-4 py-2.5 premium-input rounded-xl text-xs font-medium focus:outline-none focus:premium-input-focus-violet appearance-none cursor-pointer bg-white">
                             <option value="">Choose Category</option>
                             @foreach($feeStructures as $fee)
                             <option value="{{ $fee->id }}">
@@ -68,7 +68,7 @@
                     <div>
                         <label class="block text-xs font-semibold text-slate-700 mb-1.5">Amount Paid (INR)</label>
                         <input type="number" name="amount_paid" x-model="amountPaid" placeholder="0.00" step="0.01" min="0.01" required
-                               class="w-full px-4 py-2.5 premium-input rounded-xl text-xs font-bold focus:outline-none focus:premium-input-focus-emerald placeholder-slate-350">
+                               class="w-full px-4 py-2.5 premium-input rounded-xl text-xs font-bold focus:outline-none focus:premium-input-focus-violet placeholder-slate-350">
                     </div>
                 </div>
 
@@ -77,13 +77,13 @@
                     <div>
                         <label class="block text-xs font-semibold text-slate-700 mb-1.5">Collection Date</label>
                         <input type="date" name="payment_date" value="{{ date('Y-m-d') }}" required
-                               class="w-full px-4 py-2.5 premium-input rounded-xl text-xs font-medium focus:outline-none focus:premium-input-focus-emerald">
+                               class="w-full px-4 py-2.5 premium-input rounded-xl text-xs font-medium focus:outline-none focus:premium-input-focus-violet">
                     </div>
 
                     <!-- Payment Method -->
                     <div>
                         <label class="block text-xs font-semibold text-slate-700 mb-1.5">Payment Method</label>
-                        <select name="payment_method" required class="w-full px-4 py-2.5 premium-input rounded-xl text-xs font-medium focus:outline-none focus:premium-input-focus-emerald appearance-none cursor-pointer bg-white">
+                        <select name="payment_method" required class="w-full px-4 py-2.5 premium-input rounded-xl text-xs font-medium focus:outline-none focus:premium-input-focus-violet appearance-none cursor-pointer bg-white">
                             <option value="cash">Cash</option>
                             <option value="upi">UPI (GPay, PhonePe, Paytm)</option>
                             <option value="bank_transfer">Bank Transfer / NEFT</option>
@@ -96,14 +96,14 @@
                 <div>
                     <label class="block text-xs font-semibold text-slate-700 mb-1.5">Remarks / Transaction Notes</label>
                     <input type="text" name="remarks" placeholder="Optional notes like UPI transaction ID"
-                           class="w-full px-4 py-2.5 premium-input rounded-xl text-xs font-medium focus:outline-none focus:premium-input-focus-emerald placeholder-slate-300">
+                           class="w-full px-4 py-2.5 premium-input rounded-xl text-xs font-medium focus:outline-none focus:premium-input-focus-violet placeholder-slate-300">
                 </div>
             </div>
 
             <!-- Submit -->
             <div class="mt-8 border-t border-slate-100 pt-6 flex justify-end gap-3">
                 <a href="{{ route('school.fees.payments') }}" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-800 transition-colors">Cancel</a>
-                <button type="submit" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-all cursor-pointer shadow-sm">
+                <button type="submit" class="px-5 py-2.5 bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold rounded-xl transition-all cursor-pointer shadow-sm">
                     Record Collection
                 </button>
             </div>

@@ -10,7 +10,7 @@
             <h2 class="text-xl font-bold text-slate-900 tracking-tight">Notice Board</h2>
             <p class="text-xs text-slate-500 mt-1">Publish circulars, holiday announcements, and school events to students, parents, and teachers.</p>
         </div>
-        <button @click="showModal = true" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-all cursor-pointer shadow-sm flex items-center gap-2">
+        <button @click="showModal = true" class="px-4 py-2.5 bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold rounded-xl transition-all cursor-pointer shadow-sm flex items-center gap-2">
             <span class="material-symbols-outlined text-[16px]">campaign</span>
             Publish Notice
         </button>
@@ -18,7 +18,7 @@
 
     <!-- Alert Message -->
     @if(session('success'))
-    <div class="mb-6 p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-xs font-semibold text-emerald-700 flex items-center gap-2">
+    <div class="mb-6 p-4 bg-violet-50 border border-violet-200 rounded-xl text-xs font-semibold text-violet-700 flex items-center gap-2">
         <span class="material-symbols-outlined text-[18px]">check_circle</span>
         {{ session('success') }}
     </div>
@@ -34,8 +34,8 @@
                 $borderColor = 'border-indigo-500';
                 $badgeClass = 'bg-indigo-50 text-indigo-700 border-indigo-150';
             } elseif ($notice->type === 'event') {
-                $borderColor = 'border-emerald-500';
-                $badgeClass = 'bg-emerald-50 text-emerald-700 border-emerald-150';
+                $borderColor = 'border-violet-500';
+                $badgeClass = 'bg-violet-50 text-violet-700 border-violet-150';
             } elseif ($notice->type === 'holiday') {
                 $borderColor = 'border-rose-500';
                 $badgeClass = 'bg-rose-50 text-rose-700 border-rose-150';
@@ -88,11 +88,11 @@
                     <div>
                         <label class="block text-xs font-semibold text-slate-700 mb-1.5">Notice Title</label>
                         <input type="text" name="title" placeholder="e.g. Mid-Term Report Card Release" required
-                               class="w-full px-4 py-2.5 premium-input rounded-xl text-xs font-medium focus:outline-none focus:premium-input-focus-emerald placeholder-slate-300">
+                               class="w-full px-4 py-2.5 premium-input rounded-xl text-xs font-medium focus:outline-none focus:premium-input-focus-violet placeholder-slate-300">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-700 mb-1.5">Category</label>
-                        <select name="type" required class="w-full px-4 py-2.5 premium-input rounded-xl text-xs font-medium focus:outline-none focus:premium-input-focus-emerald appearance-none cursor-pointer bg-white">
+                        <select name="type" required class="w-full px-4 py-2.5 premium-input rounded-xl text-xs font-medium focus:outline-none focus:premium-input-focus-violet appearance-none cursor-pointer bg-white">
                             <option value="general">General announcement</option>
                             <option value="academic">Academic / Exam related</option>
                             <option value="event">School Event / Activities</option>
@@ -102,22 +102,22 @@
                     <div>
                         <label class="block text-xs font-semibold text-slate-700 mb-1.5">Notice Content</label>
                         <textarea name="content" rows="4" placeholder="Enter notice details..." required
-                                  class="w-full px-4 py-2.5 premium-input rounded-xl text-xs font-medium focus:outline-none focus:premium-input-focus-emerald placeholder-slate-300 resize-none"></textarea>
+                                  class="w-full px-4 py-2.5 premium-input rounded-xl text-xs font-medium focus:outline-none focus:premium-input-focus-violet placeholder-slate-300 resize-none"></textarea>
                     </div>
                     <div x-data="{ publishNow: true }">
                         <div class="flex items-center justify-between mb-2">
                             <label class="block text-xs font-semibold text-slate-700">Publish immediately</label>
-                            <input type="checkbox" name="publish_now" value="1" x-model="publishNow" class="rounded text-emerald-600 focus:ring-emerald-500 h-4 w-4">
+                            <input type="checkbox" name="publish_now" value="1" x-model="publishNow" class="rounded text-violet-600 focus:ring-violet-500 h-4 w-4">
                         </div>
                         <div x-show="!publishNow" x-transition>
                             <label class="block text-xs font-semibold text-slate-600 mb-1">Scheduled Publish Date</label>
-                            <input type="datetime-local" name="published_at" class="w-full px-4 py-2.5 premium-input rounded-xl text-xs font-medium focus:outline-none focus:premium-input-focus-emerald">
+                            <input type="datetime-local" name="published_at" class="w-full px-4 py-2.5 premium-input rounded-xl text-xs font-medium focus:outline-none focus:premium-input-focus-violet">
                         </div>
                     </div>
                 </div>
                 <div class="mt-6 flex justify-end gap-3">
                     <button type="button" @click="showModal = false" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-800 transition-colors cursor-pointer">Cancel</button>
-                    <button type="submit" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-all cursor-pointer shadow-sm">Publish Notice</button>
+                    <button type="submit" class="px-5 py-2.5 bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold rounded-xl transition-all cursor-pointer shadow-sm">Publish Notice</button>
                 </div>
             </form>
         </div>

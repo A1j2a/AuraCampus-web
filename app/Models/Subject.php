@@ -24,4 +24,12 @@ class Subject extends Model
                     ->withPivot('teacher_id')
                     ->withTimestamps();
     }
+
+    /**
+     * Get teachers qualified to teach this subject.
+     */
+    public function teachers(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'subject_teacher', 'subject_id', 'teacher_id')->withTimestamps();
+    }
 }

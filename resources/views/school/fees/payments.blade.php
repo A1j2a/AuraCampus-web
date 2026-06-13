@@ -10,7 +10,7 @@
             <h2 class="text-xl font-bold text-slate-900 tracking-tight font-sans">Fees & Revenue Management</h2>
             <p class="text-xs text-slate-500 mt-1">Configure standard fee structures, track student invoices, and collect receipts.</p>
         </div>
-        <a href="{{ route('school.fees.collect') }}" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-all cursor-pointer shadow-sm flex items-center gap-2">
+        <a href="{{ route('school.fees.collect') }}" class="px-4 py-2.5 bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold rounded-xl transition-all cursor-pointer shadow-sm flex items-center gap-2">
             <span class="material-symbols-outlined text-[16px]">payments</span>
             Collect Fee
         </a>
@@ -18,7 +18,7 @@
 
     <!-- Sub Navigation Tabs -->
     <div class="flex border-b border-slate-200 gap-6 mb-8 text-xs font-bold overflow-x-auto whitespace-nowrap scrollbar-none">
-        <a href="{{ route('school.fees.payments') }}" class="pb-3 text-emerald-600 border-b-2 border-emerald-500">
+        <a href="{{ route('school.fees.payments') }}" class="pb-3 text-violet-600 border-b-2 border-violet-500">
             Collections History
         </a>
         <a href="{{ route('school.fees.index') }}" class="pb-3 text-slate-500 hover:text-slate-900 transition-colors border-b-2 border-transparent">
@@ -31,7 +31,7 @@
 
     <!-- Alert Success -->
     @if(session('success'))
-    <div class="mb-6 p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-xs font-semibold text-emerald-700 flex items-center gap-2">
+    <div class="mb-6 p-4 bg-violet-50 border border-violet-200 rounded-xl text-xs font-semibold text-violet-700 flex items-center gap-2">
         <span class="material-symbols-outlined text-[18px]">check_circle</span>
         {{ session('success') }}
     </div>
@@ -43,7 +43,7 @@
             <!-- Filter Class -->
             <div>
                 <label class="block text-xs font-semibold text-slate-700 mb-1.5">Filter Classroom</label>
-                <select name="class_id" class="w-full px-4 py-2.5 premium-input rounded-xl text-xs font-semibold focus:outline-none focus:premium-input-focus-emerald appearance-none cursor-pointer bg-white">
+                <select name="class_id" class="w-full px-4 py-2.5 premium-input rounded-xl text-xs font-semibold focus:outline-none focus:premium-input-focus-violet appearance-none cursor-pointer bg-white">
                     <option value="">All Classes</option>
                     @foreach($classes as $class)
                     <option value="{{ $class->id }}" {{ $selectedClassId == $class->id ? 'selected' : '' }}>
@@ -56,7 +56,7 @@
             <!-- Filter Status -->
             <div>
                 <label class="block text-xs font-semibold text-slate-700 mb-1.5">Payment Status</label>
-                <select name="status" class="w-full px-4 py-2.5 premium-input rounded-xl text-xs font-semibold focus:outline-none focus:premium-input-focus-emerald appearance-none cursor-pointer bg-white">
+                <select name="status" class="w-full px-4 py-2.5 premium-input rounded-xl text-xs font-semibold focus:outline-none focus:premium-input-focus-violet appearance-none cursor-pointer bg-white">
                     <option value="">All Statuses</option>
                     <option value="paid" {{ $selectedStatus == 'paid' ? 'selected' : '' }}>Fully Paid</option>
                     <option value="partial" {{ $selectedStatus == 'partial' ? 'selected' : '' }}>Partially Paid</option>
@@ -124,7 +124,7 @@
                         </td>
                         <td class="px-6 py-4">
                             @if($payment->status === 'paid')
-                            <span class="px-2 py-0.5 bg-emerald-50 border border-emerald-150 text-emerald-700 text-[9px] font-bold rounded font-mono uppercase">Paid</span>
+                            <span class="px-2 py-0.5 bg-violet-50 border border-violet-150 text-violet-700 text-[9px] font-bold rounded font-mono uppercase">Paid</span>
                             @else
                             <span class="px-2 py-0.5 bg-amber-50 border border-amber-150 text-amber-700 text-[9px] font-bold rounded font-mono uppercase">Partial</span>
                             @endif

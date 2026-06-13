@@ -8,6 +8,9 @@
     <!-- Material Symbols -->
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{{ asset('images/logo.png') }}">
+
     <!-- Vite Assets -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
@@ -24,11 +27,8 @@
     <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
            class="h-screen w-64 fixed left-0 top-0 bg-white border-r border-slate-200/60 shadow-sm flex flex-col py-6 px-4 z-50 transition-transform duration-300 ease-in-out">
         <div class="mb-8 px-4 flex items-center gap-3">
-            <div class="w-8 h-8 rounded-lg bg-indigo-50 border border-indigo-100 flex items-center justify-center shrink-0 shadow-sm">
-                <svg class="w-5 h-5 text-[#4f46e5]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                    <path d="M12 2L2 7l10 5 10-5-10-5z" fill="currentColor" fill-opacity="0.1"/>
-                    <path d="M2 17l10 5 10-5M2 12l10 5 10-5"/>
-                </svg>
+            <div class="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center shrink-0 shadow-sm border border-slate-100">
+                <img src="{{ asset('images/logo.png') }}" alt="Logo" class="w-full h-full object-cover">
             </div>
             <div>
                 <h1 class="text-base font-bold text-slate-900 tracking-tight leading-none">AuraCampus</h1>

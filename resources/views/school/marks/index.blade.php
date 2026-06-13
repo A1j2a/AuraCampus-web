@@ -99,13 +99,13 @@
                                            step="0.01"
                                            min="0"
                                            max="{{ $examSchedule->max_marks }}"
-                                           class="w-28 px-3 py-1.5 premium-input rounded-lg text-xs font-bold text-slate-800 focus:outline-none focus:premium-input-focus-emerald placeholder-slate-350 pr-8">
+                                           class="w-28 px-3 py-1.5 premium-input rounded-lg text-xs font-bold text-slate-800 focus:outline-none focus:premium-input-focus-violet placeholder-slate-350 pr-8">
                                     <span class="absolute right-3.5 text-[10px] text-slate-400 font-mono">/{{ $examSchedule->max_marks }}</span>
                                 </div>
                             </td>
                             <td class="px-6 py-4">
                                 <span class="px-2 py-0.5 text-xs font-mono font-bold rounded-lg
-                                    {{ $gradeValue === 'F' ? 'bg-rose-50 text-rose-700 border border-rose-100' : ($gradeValue !== '—' ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 'text-slate-400') }}">
+                                    {{ $gradeValue === 'F' ? 'bg-rose-50 text-rose-700 border border-rose-100' : ($gradeValue !== '—' ? 'bg-violet-50 text-violet-700 border border-violet-100' : 'text-slate-400') }}">
                                     {{ $gradeValue }}
                                 </span>
                             </td>
@@ -114,13 +114,13 @@
                                        name="marks[{{ $student->id }}][remarks]" 
                                        value="{{ old('marks.'.$student->id.'.remarks', $remarksValue) }}"
                                        placeholder="Outstanding, Needs Improvement..." 
-                                       class="w-full px-3 py-1.5 premium-input rounded-lg text-xs font-medium focus:outline-none focus:premium-input-focus-emerald placeholder-slate-300">
+                                       class="w-full px-3 py-1.5 premium-input rounded-lg text-xs font-medium focus:outline-none focus:premium-input-focus-violet placeholder-slate-300">
                             </td>
                         </tr>
                         @empty
                         <tr>
                             <td colspan="6" class="px-6 py-12 text-center">
-                                <span class="material-symbols-outlined text-emerald-600 text-4xl mb-3">groups</span>
+                                <span class="material-symbols-outlined text-violet-600 text-4xl mb-3">groups</span>
                                 <h4 class="text-sm font-bold text-slate-800 mb-1">No Students Found</h4>
                                 <p class="text-xs text-slate-500">There are no students enrolled in this class to enter marks.</p>
                             </td>
@@ -135,7 +135,7 @@
         @if($students->isNotEmpty())
         <div class="flex justify-end gap-3">
             <a href="{{ route('school.exams.show', $examSchedule->exam_id) }}" class="px-4 py-2.5 text-xs font-bold text-slate-600 hover:text-slate-800 transition-colors">Cancel</a>
-            <button type="submit" class="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-all cursor-pointer shadow-sm">
+            <button type="submit" class="px-6 py-2.5 bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold rounded-xl transition-all cursor-pointer shadow-sm">
                 Save All Grades
             </button>
         </div>

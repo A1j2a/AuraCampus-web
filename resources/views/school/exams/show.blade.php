@@ -21,7 +21,7 @@
                 Duration: {{ \Carbon\Carbon::parse($exam->start_date)->format('d M Y') }} - {{ \Carbon\Carbon::parse($exam->end_date)->format('d M Y') }}
             </p>
         </div>
-        <button @click="showModal = true" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-all cursor-pointer shadow-sm flex items-center gap-2">
+        <button @click="showModal = true" class="px-4 py-2.5 bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold rounded-xl transition-all cursor-pointer shadow-sm flex items-center gap-2">
             <span class="material-symbols-outlined text-[16px]">schedule</span>
             Schedule Subject
         </button>
@@ -29,7 +29,7 @@
 
     <!-- Alert Success -->
     @if(session('success'))
-    <div class="mb-6 p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-xs font-semibold text-emerald-700 flex items-center gap-2">
+    <div class="mb-6 p-4 bg-violet-50 border border-violet-200 rounded-xl text-xs font-semibold text-violet-700 flex items-center gap-2">
         <span class="material-symbols-outlined text-[18px]">check_circle</span>
         {{ session('success') }}
     </div>
@@ -80,7 +80,7 @@
                         </td>
                         <td class="px-6 py-4 text-right">
                             <a href="{{ route('school.marks.schedule', $schedule) }}" 
-                               class="px-2.5 py-1 text-[11px] font-bold text-emerald-600 hover:text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200/50 rounded-lg transition-all cursor-pointer inline-flex items-center gap-1">
+                               class="px-2.5 py-1 text-[11px] font-bold text-violet-600 hover:text-violet-700 bg-violet-50 hover:bg-violet-100 border border-violet-200/50 rounded-lg transition-all cursor-pointer inline-flex items-center gap-1">
                                 <span class="material-symbols-outlined text-[13px]">edit_note</span>
                                 Enter Marks
                             </a>
@@ -89,7 +89,7 @@
                     @empty
                     <tr>
                         <td colspan="6" class="px-6 py-12 text-center">
-                            <span class="material-symbols-outlined text-emerald-600 text-4xl mb-3 animate-float-slow">schedule</span>
+                            <span class="material-symbols-outlined text-violet-600 text-4xl mb-3 animate-float-slow">schedule</span>
                             <h4 class="text-sm font-bold text-slate-800 mb-1">No Subject Scheduled</h4>
                             <p class="text-xs text-slate-500">Click "Schedule Subject" to configure the exam datesheet.</p>
                         </td>
@@ -116,7 +116,7 @@
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-semibold text-slate-700 mb-1.5">Class / Section</label>
-                            <select name="class_id" required class="w-full px-4 py-2.5 premium-input rounded-xl text-xs font-medium focus:outline-none focus:premium-input-focus-emerald appearance-none cursor-pointer bg-white">
+                            <select name="class_id" required class="w-full px-4 py-2.5 premium-input rounded-xl text-xs font-medium focus:outline-none focus:premium-input-focus-violet appearance-none cursor-pointer bg-white">
                                 <option value="">Select Class</option>
                                 @foreach($classes as $class)
                                 <option value="{{ $class->id }}">{{ $class->name }} - {{ $class->section }}</option>
@@ -125,7 +125,7 @@
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-slate-700 mb-1.5">Subject</label>
-                            <select name="subject_id" required class="w-full px-4 py-2.5 premium-input rounded-xl text-xs font-medium focus:outline-none focus:premium-input-focus-emerald appearance-none cursor-pointer bg-white">
+                            <select name="subject_id" required class="w-full px-4 py-2.5 premium-input rounded-xl text-xs font-medium focus:outline-none focus:premium-input-focus-violet appearance-none cursor-pointer bg-white">
                                 <option value="">Select Subject</option>
                                 @foreach($subjects as $subject)
                                 <option value="{{ $subject->id }}">{{ $subject->name }} ({{ $subject->code }})</option>
@@ -137,19 +137,19 @@
                     <div>
                         <label class="block text-xs font-semibold text-slate-700 mb-1.5">Exam Date</label>
                         <input type="date" name="exam_date" required min="{{ $exam->start_date }}" max="{{ $exam->end_date }}"
-                               class="w-full px-4 py-2.5 premium-input rounded-xl text-xs font-medium focus:outline-none focus:premium-input-focus-emerald">
+                               class="w-full px-4 py-2.5 premium-input rounded-xl text-xs font-medium focus:outline-none focus:premium-input-focus-violet">
                     </div>
 
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-semibold text-slate-700 mb-1.5">Start Time</label>
                             <input type="time" name="start_time" required
-                                   class="w-full px-4 py-2.5 premium-input rounded-xl text-xs font-medium focus:outline-none focus:premium-input-focus-emerald">
+                                   class="w-full px-4 py-2.5 premium-input rounded-xl text-xs font-medium focus:outline-none focus:premium-input-focus-violet">
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-slate-700 mb-1.5">End Time</label>
                             <input type="time" name="end_time" required
-                                   class="w-full px-4 py-2.5 premium-input rounded-xl text-xs font-medium focus:outline-none focus:premium-input-focus-emerald">
+                                   class="w-full px-4 py-2.5 premium-input rounded-xl text-xs font-medium focus:outline-none focus:premium-input-focus-violet">
                         </div>
                     </div>
 
@@ -157,19 +157,19 @@
                         <div>
                             <label class="block text-xs font-semibold text-slate-700 mb-1.5">Maximum Marks</label>
                             <input type="number" name="max_marks" placeholder="e.g. 100" required min="1"
-                                   class="w-full px-4 py-2.5 premium-input rounded-xl text-xs font-medium focus:outline-none focus:premium-input-focus-emerald placeholder-slate-300">
+                                   class="w-full px-4 py-2.5 premium-input rounded-xl text-xs font-medium focus:outline-none focus:premium-input-focus-violet placeholder-slate-300">
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-slate-700 mb-1.5">Passing Marks</label>
                             <input type="number" name="passing_marks" placeholder="e.g. 33" required min="1"
-                                   class="w-full px-4 py-2.5 premium-input rounded-xl text-xs font-medium focus:outline-none focus:premium-input-focus-emerald placeholder-slate-300">
+                                   class="w-full px-4 py-2.5 premium-input rounded-xl text-xs font-medium focus:outline-none focus:premium-input-focus-violet placeholder-slate-300">
                         </div>
                     </div>
                 </div>
 
                 <div class="mt-6 flex justify-end gap-3">
                     <button type="button" @click="showModal = false" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-800 transition-colors cursor-pointer">Cancel</button>
-                    <button type="submit" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-all cursor-pointer shadow-sm">Schedule Paper</button>
+                    <button type="submit" class="px-5 py-2.5 bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold rounded-xl transition-all cursor-pointer shadow-sm">Schedule Paper</button>
                 </div>
             </form>
         </div>

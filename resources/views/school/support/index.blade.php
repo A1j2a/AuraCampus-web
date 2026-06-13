@@ -10,7 +10,7 @@
             <h1 class="text-2xl font-bold tracking-tight text-slate-900">Help Desk Support</h1>
             <p class="text-xs text-slate-500 mt-1">Submit support requests and discuss platform inquiries directly with the AuraCampus technical team.</p>
         </div>
-        <button @click.stop="openModal = true" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-all cursor-pointer shadow-sm flex items-center justify-center gap-2">
+        <button @click.stop="openModal = true" class="px-4 py-2.5 bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold rounded-xl transition-all cursor-pointer shadow-sm flex items-center justify-center gap-2">
             <span class="material-symbols-outlined text-[18px]">add_circle</span>
             <span class="text-xs font-semibold">Open New Ticket</span>
         </button>
@@ -49,12 +49,12 @@
                             @elseif($ticket->priority === 'medium')
                                 <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-amber-50 text-amber-600 border border-amber-100 uppercase tracking-wider">Medium</span>
                             @else
-                                <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-50 text-emerald-600 border border-emerald-100 uppercase tracking-wider">Low</span>
+                                <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-violet-50 text-violet-600 border border-violet-100 uppercase tracking-wider">Low</span>
                             @endif
                         </td>
                         <td class="p-4">
                             @if($ticket->status === 'open')
-                                <span class="px-2.5 py-0.5 text-[10px] font-bold rounded-full bg-emerald-500 text-white uppercase tracking-wider shadow-sm">Open</span>
+                                <span class="px-2.5 py-0.5 text-[10px] font-bold rounded-full bg-violet-500 text-white uppercase tracking-wider shadow-sm">Open</span>
                             @elseif($ticket->status === 'pending')
                                 <span class="px-2.5 py-0.5 text-[10px] font-bold rounded-full bg-sky-500 text-white uppercase tracking-wider shadow-sm">Pending</span>
                             @else
@@ -63,7 +63,7 @@
                         </td>
                         <td class="p-4 text-xs text-slate-500 font-mono">{{ $ticket->created_at->format('M d, Y h:i A') }}</td>
                         <td class="p-4 text-right">
-                            <a href="{{ route('school.support.show', $ticket) }}" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-[10px] font-bold bg-slate-100 text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 transition-all cursor-pointer">
+                            <a href="{{ route('school.support.show', $ticket) }}" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-[10px] font-bold bg-slate-100 text-slate-700 hover:bg-violet-50 hover:text-violet-700 transition-all cursor-pointer">
                                 <span class="material-symbols-outlined text-[14px]">forum</span>
                                 Discuss
                             </a>
@@ -93,12 +93,12 @@
                 @csrf
                 <div>
                     <label class="block text-[10px] font-mono text-slate-400 uppercase tracking-widest mb-1.5 font-bold">Subject</label>
-                    <input name="subject" required type="text" class="w-full px-4 py-2.5 premium-input rounded-xl focus:outline-none focus:premium-input-focus-emerald placeholder-slate-350 text-xs font-semibold" placeholder="Brief summary of the issue..."/>
+                    <input name="subject" required type="text" class="w-full px-4 py-2.5 premium-input rounded-xl focus:outline-none focus:premium-input-focus-violet placeholder-slate-350 text-xs font-semibold" placeholder="Brief summary of the issue..."/>
                 </div>
 
                 <div>
                     <label class="block text-[10px] font-mono text-slate-400 uppercase tracking-widest mb-1.5 font-bold">Priority</label>
-                    <select name="priority" required class="w-full px-4 py-2.5 premium-input rounded-xl focus:outline-none focus:premium-input-focus-emerald text-xs font-semibold cursor-pointer bg-white">
+                    <select name="priority" required class="w-full px-4 py-2.5 premium-input rounded-xl focus:outline-none focus:premium-input-focus-violet text-xs font-semibold cursor-pointer bg-white">
                         <option value="low">Low - General inquiry</option>
                         <option value="medium" selected>Medium - Functional blocker</option>
                         <option value="high">High - System / critical failure</option>
@@ -107,12 +107,12 @@
 
                 <div>
                     <label class="block text-[10px] font-mono text-slate-400 uppercase tracking-widest mb-1.5 font-bold">Description & Details</label>
-                    <textarea name="description" required rows="4" class="w-full px-4 py-2.5 premium-input rounded-xl focus:outline-none focus:premium-input-focus-emerald placeholder-slate-350 text-xs font-semibold resize-none" placeholder="Provide detailed steps, error messages, or questions..."></textarea>
+                    <textarea name="description" required rows="4" class="w-full px-4 py-2.5 premium-input rounded-xl focus:outline-none focus:premium-input-focus-violet placeholder-slate-350 text-xs font-semibold resize-none" placeholder="Provide detailed steps, error messages, or questions..."></textarea>
                 </div>
 
                 <div class="flex items-center justify-end gap-3 pt-2">
                     <button type="button" @click="openModal = false" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-800 transition-colors cursor-pointer">Cancel</button>
-                    <button type="submit" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-all cursor-pointer shadow-sm">Submit Ticket</button>
+                    <button type="submit" class="px-5 py-2.5 bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold rounded-xl transition-all cursor-pointer shadow-sm">Submit Ticket</button>
                 </div>
             </form>
         </div>

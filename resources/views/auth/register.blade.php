@@ -12,11 +12,8 @@
             
             <!-- Logo Header -->
             <div class="flex flex-col items-center mb-6">
-                <div class="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-100/80 flex items-center justify-center mb-3 text-indigo-600 shadow-sm">
-                    <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                        <path d="M12 2L2 7l10 5 10-5-10-5z" fill="currentColor" fill-opacity="0.1"/>
-                        <path d="M2 17l10 5 10-5M2 12l10 5 10-5"/>
-                    </svg>
+                <div class="w-10 h-10 rounded-xl overflow-hidden flex items-center justify-center mb-3 border border-slate-200 shadow-sm bg-white">
+                    <img src="{{ asset('images/logo.png') }}" alt="Logo" class="w-full h-full object-cover">
                 </div>
                 <h3 class="text-xl font-bold text-slate-900 tracking-tight">Create workspace</h3>
                 <p class="text-xs text-slate-500 mt-1 text-center">Set up credentials for your new campus portal</p>

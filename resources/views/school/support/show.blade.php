@@ -13,7 +13,7 @@
         <div class="flex items-center gap-3">
             <span class="text-xs font-semibold text-slate-400 font-mono">#TKT-{{ str_pad($ticket->id, 4, '0', STR_PAD_LEFT) }}</span>
             @if($ticket->status === 'open')
-                <span class="px-2.5 py-0.5 text-[10px] font-bold rounded-full bg-emerald-500 text-white uppercase tracking-wider">Open</span>
+                <span class="px-2.5 py-0.5 text-[10px] font-bold rounded-full bg-violet-500 text-white uppercase tracking-wider">Open</span>
             @elseif($ticket->status === 'pending')
                 <span class="px-2.5 py-0.5 text-[10px] font-bold rounded-full bg-sky-500 text-white uppercase tracking-wider">Pending</span>
             @else
@@ -49,7 +49,7 @@
                     @elseif($ticket->priority === 'medium')
                         <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-amber-50 text-amber-600 border border-amber-100 uppercase tracking-wider">Medium</span>
                     @else
-                        <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-50 text-emerald-600 border border-emerald-100 uppercase tracking-wider">Low</span>
+                        <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-violet-50 text-violet-600 border border-violet-100 uppercase tracking-wider">Low</span>
                     @endif
                 </div>
                 <div>
@@ -71,7 +71,7 @@
             <div class="flex-1 overflow-y-auto p-6 space-y-4 bg-slate-50/20" id="chat-messages-container">
                 <!-- Original Description Post -->
                 <div class="flex gap-3 max-w-[85%]">
-                    <div class="w-8 h-8 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center text-[10px] font-bold text-emerald-600 shrink-0 shadow-sm">
+                    <div class="w-8 h-8 rounded-full bg-violet-50 border border-violet-100 flex items-center justify-center text-[10px] font-bold text-violet-600 shrink-0 shadow-sm">
                         {{ strtoupper(substr($ticket->user->name, 0, 2)) }}
                     </div>
                     <div>
@@ -93,7 +93,7 @@
                     <div class="flex gap-3 max-w-[85%] {{ $isMe ? 'ml-auto flex-row-reverse' : '' }}">
                         <!-- Avatar -->
                         @if($isMe)
-                            <div class="w-8 h-8 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center text-[10px] font-bold text-emerald-600 shrink-0 shadow-sm">
+                            <div class="w-8 h-8 rounded-full bg-violet-50 border border-violet-100 flex items-center justify-center text-[10px] font-bold text-violet-600 shrink-0 shadow-sm">
                                 ME
                             </div>
                         @else
@@ -107,7 +107,7 @@
                                 <span class="text-[10px] font-bold text-slate-800">{{ $isMe ? 'You' : 'AuraCampus Support' }}</span>
                                 <span class="text-[8px] text-slate-400 font-mono">{{ $msg->created_at->diffForHumans() }}</span>
                             </div>
-                            <div class="mt-1 p-3.5 text-xs leading-normal shadow-sm {{ $isMe ? 'bg-emerald-600 text-white rounded-2xl rounded-tr-none' : 'bg-white border border-slate-200/65 text-slate-700 rounded-2xl rounded-tl-none' }}">
+                            <div class="mt-1 p-3.5 text-xs leading-normal shadow-sm {{ $isMe ? 'bg-violet-600 text-white rounded-2xl rounded-tr-none' : 'bg-white border border-slate-200/65 text-slate-700 rounded-2xl rounded-tl-none' }}">
                                 {{ $msg->message }}
                             </div>
                         </div>
@@ -122,8 +122,8 @@
                 @endif
                 <form action="{{ route('school.support.message', $ticket) }}" method="POST" class="flex gap-3 items-center mt-2">
                     @csrf
-                    <input name="message" required type="text" class="flex-1 px-4 py-2.5 premium-input rounded-xl focus:outline-none focus:premium-input-focus-emerald placeholder-slate-400 text-xs font-semibold" placeholder="Type your reply message here..."/>
-                    <button type="submit" class="p-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl cursor-pointer shadow-sm transition-all flex items-center justify-center">
+                    <input name="message" required type="text" class="flex-1 px-4 py-2.5 premium-input rounded-xl focus:outline-none focus:premium-input-focus-violet placeholder-slate-400 text-xs font-semibold" placeholder="Type your reply message here..."/>
+                    <button type="submit" class="p-2.5 bg-violet-600 hover:bg-violet-700 text-white rounded-xl cursor-pointer shadow-sm transition-all flex items-center justify-center">
                         <span class="material-symbols-outlined text-[18px]">send</span>
                     </button>
                 </form>

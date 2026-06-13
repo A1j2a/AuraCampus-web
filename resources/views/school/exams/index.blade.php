@@ -10,7 +10,7 @@
             <h2 class="text-xl font-bold text-slate-900 tracking-tight font-sans">Exams & Term Assessments</h2>
             <p class="text-xs text-slate-500 mt-1">Manage mid-term, final, and weekly unit assessments, and configure date schedules.</p>
         </div>
-        <button @click="showModal = true" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-all cursor-pointer shadow-sm flex items-center gap-2">
+        <button @click="showModal = true" class="px-4 py-2.5 bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold rounded-xl transition-all cursor-pointer shadow-sm flex items-center gap-2">
             <span class="material-symbols-outlined text-[16px]">add_circle</span>
             Create Exam
         </button>
@@ -18,7 +18,7 @@
 
     <!-- Alerts -->
     @if(session('success'))
-    <div class="mb-6 p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-xs font-semibold text-emerald-700 flex items-center gap-2">
+    <div class="mb-6 p-4 bg-violet-50 border border-violet-200 rounded-xl text-xs font-semibold text-violet-700 flex items-center gap-2">
         <span class="material-symbols-outlined text-[18px]">check_circle</span>
         {{ session('success') }}
     </div>
@@ -32,7 +32,7 @@
             if ($exam->status === 'ongoing') {
                 $statusBadge = 'bg-blue-50 text-blue-700 border-blue-150 animate-pulse';
             } elseif ($exam->status === 'completed') {
-                $statusBadge = 'bg-emerald-50 text-emerald-700 border-emerald-150';
+                $statusBadge = 'bg-violet-50 text-violet-700 border-violet-150';
             }
         @endphp
         <div class="premium-card p-6 bg-white rounded-2xl shadow-sm border border-slate-200/60 relative overflow-hidden flex flex-col justify-between hover:shadow-md transition-all">
@@ -66,7 +66,7 @@
 
             <div class="mt-4 pt-4 border-t border-slate-50 flex items-center justify-between">
                 <a href="{{ route('school.exams.show', $exam) }}" 
-                   class="w-full text-center px-4 py-2 bg-slate-50 hover:bg-emerald-50 border border-slate-200/60 hover:border-emerald-200 hover:text-emerald-700 text-slate-700 text-xs font-bold rounded-xl transition-all">
+                   class="w-full text-center px-4 py-2 bg-slate-50 hover:bg-violet-50 border border-slate-200/60 hover:border-violet-200 hover:text-violet-700 text-slate-700 text-xs font-bold rounded-xl transition-all">
                     View & Configure Schedules
                 </a>
             </div>
@@ -96,25 +96,25 @@
                     <div>
                         <label class="block text-xs font-semibold text-slate-700 mb-1.5">Exam Term Name</label>
                         <input type="text" name="name" placeholder="e.g. Mid-Term Examination" required
-                               class="w-full px-4 py-2.5 premium-input rounded-xl text-xs font-medium focus:outline-none focus:premium-input-focus-emerald placeholder-slate-300">
+                               class="w-full px-4 py-2.5 premium-input rounded-xl text-xs font-medium focus:outline-none focus:premium-input-focus-violet placeholder-slate-300">
                     </div>
                     
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-semibold text-slate-700 mb-1.5">Start Date</label>
                             <input type="date" name="start_date" required
-                                   class="w-full px-4 py-2.5 premium-input rounded-xl text-xs font-medium focus:outline-none focus:premium-input-focus-emerald">
+                                   class="w-full px-4 py-2.5 premium-input rounded-xl text-xs font-medium focus:outline-none focus:premium-input-focus-violet">
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-slate-700 mb-1.5">End Date</label>
                             <input type="date" name="end_date" required
-                                   class="w-full px-4 py-2.5 premium-input rounded-xl text-xs font-medium focus:outline-none focus:premium-input-focus-emerald">
+                                   class="w-full px-4 py-2.5 premium-input rounded-xl text-xs font-medium focus:outline-none focus:premium-input-focus-violet">
                         </div>
                     </div>
 
                     <div>
                         <label class="block text-xs font-semibold text-slate-700 mb-1.5">Evaluation Category</label>
-                        <select name="type" required class="w-full px-4 py-2.5 premium-input rounded-xl text-xs font-medium focus:outline-none focus:premium-input-focus-emerald appearance-none cursor-pointer bg-white">
+                        <select name="type" required class="w-full px-4 py-2.5 premium-input rounded-xl text-xs font-medium focus:outline-none focus:premium-input-focus-violet appearance-none cursor-pointer bg-white">
                             <option value="mid_term">Mid-Term Assessment</option>
                             <option value="final">Final Assessment</option>
                             <option value="unit_test">Unit Test</option>
@@ -125,7 +125,7 @@
 
                 <div class="mt-6 flex justify-end gap-3">
                     <button type="button" @click="showModal = false" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-800 transition-colors cursor-pointer">Cancel</button>
-                    <button type="submit" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-all cursor-pointer shadow-sm">Save Exam</button>
+                    <button type="submit" class="px-5 py-2.5 bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold rounded-xl transition-all cursor-pointer shadow-sm">Save Exam</button>
                 </div>
             </form>
         </div>

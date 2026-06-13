@@ -19,12 +19,8 @@
         >
             <!-- Brand Header -->
             <div class="flex flex-col items-center mb-6">
-                <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-3 transition-colors duration-300"
-                     :class="role === 'super' ? 'bg-indigo-50 border border-indigo-100/80' : 'bg-emerald-50 border border-emerald-100/80'">
-                    <svg class="w-6 h-6 transition-colors duration-300" :class="role === 'super' ? 'text-indigo-600' : 'text-emerald-600'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                        <path d="M12 2L2 7l10 5 10-5-10-5z" fill="currentColor" fill-opacity="0.1"/>
-                        <path d="M2 17l10 5 10-5M2 12l10 5 10-5"/>
-                    </svg>
+                <div class="w-10 h-10 rounded-xl overflow-hidden flex items-center justify-center mb-3 border border-slate-200 shadow-sm bg-white">
+                    <img src="{{ asset('images/logo.png') }}" alt="Logo" class="w-full h-full object-cover">
                 </div>
                 <h3 class="text-xl font-bold text-slate-900 tracking-tight">Sign in to AuraCampus</h3>
                 <p class="text-xs text-slate-500 mt-1 text-center">Access your custom school workspace dashboard</p>

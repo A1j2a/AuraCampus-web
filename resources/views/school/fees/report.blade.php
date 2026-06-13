@@ -18,7 +18,7 @@
         <a href="{{ route('school.fees.index') }}" class="pb-3 text-slate-500 hover:text-slate-900 transition-colors border-b-2 border-transparent">
             Fee Categories
         </a>
-        <a href="{{ route('school.fees.report') }}" class="pb-3 text-emerald-600 border-b-2 border-emerald-500">
+        <a href="{{ route('school.fees.report') }}" class="pb-3 text-violet-600 border-b-2 border-violet-500">
             Revenue Analysis
         </a>
     </div>
@@ -27,10 +27,10 @@
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
         <!-- Total Collected -->
         <div class="premium-card p-6 bg-white rounded-2xl border border-slate-200/60 shadow-sm relative overflow-hidden">
-            <div class="absolute -right-10 -top-10 w-24 h-24 bg-emerald-500/5 rounded-full blur-xl"></div>
+            <div class="absolute -right-10 -top-10 w-24 h-24 bg-violet-500/5 rounded-full blur-xl"></div>
             <span class="block text-[9px] font-mono text-slate-400 uppercase tracking-wider">Total Collection</span>
             <span class="block text-xl font-black text-slate-900 mt-2 font-mono">₹{{ number_format($totalCollected, 2) }}</span>
-            <div class="flex items-center gap-1 text-[9px] text-emerald-600 font-bold mt-2">
+            <div class="flex items-center gap-1 text-[9px] text-violet-600 font-bold mt-2">
                 <span class="material-symbols-outlined text-[12px]">trending_up</span>
                 <span>Cumulative Revenue</span>
             </div>
@@ -126,7 +126,7 @@
                         <span class="font-mono">{{ round($cashPct, 1) }}%</span>
                     </div>
                     <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-                        <div class="bg-emerald-500 bg-emerald-500 h-full rounded-full" style="width: {{ $cashPct }}%"></div>
+                        <div class="bg-violet-500 bg-violet-500 h-full rounded-full" style="width: {{ $cashPct }}%"></div>
                     </div>
                 </div>
 

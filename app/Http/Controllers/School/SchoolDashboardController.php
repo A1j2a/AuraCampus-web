@@ -22,20 +22,16 @@ class SchoolDashboardController extends Controller
         // Stats
         $totalStudents = User::where('school_id', $schoolId)->role('student')->count();
         $totalTeachers = User::where('school_id', $schoolId)->role('teacher')->count();
-        $totalClasses = SchoolClass::count();
-        $totalSubjects = Subject::count();
-
-        // Today's attendance rate
-        $todayAttendance = Attendance::where('date', today())->get();
-        $attendanceRate = $todayAttendance->count() > 0
-            ? round(($todayAttendance->where('status', 'present')->count() / $todayAttendance->count()) * 100, 1)
-            : 0;
+        $totalClasses  = SchoolClass::where('school_id', $schoolId)->count();
+        $totalSubjects = Subject::where('school_id', $schoolId)->count();
+        $totalParents  = User::where('school_id', $schoolId)->role('parent')->count();
 
         // Recent notices
-        $notices = Notice::latest('published_at')->take(3)->get();
+        $notices = Notice::where('school_id', $schoolId)->latest('published_at')->take(3)->get();
 
         // Class roster with student counts
-        $classes = SchoolClass::with('teacher')
+        $classes = SchoolClass::where('school_id', $schoolId)
+                              ->with('teacher')
                               ->withCount('students')
                               ->orderBy('name')
                               ->orderBy('section')
@@ -43,7 +39,7 @@ class SchoolDashboardController extends Controller
 
         return view('school.dashboard.index', compact(
             'totalStudents', 'totalTeachers', 'totalClasses',
-            'totalSubjects', 'attendanceRate', 'notices', 'classes'
+            'totalSubjects', 'totalParents', 'notices', 'classes'
         ));
     }
 }
