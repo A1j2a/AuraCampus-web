@@ -3,13 +3,13 @@
 namespace App\Models;
 
 use App\Traits\BelongsToSchool;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class StudentDetail extends Model
 {
-    use HasFactory, BelongsToSchool;
+    use BelongsToSchool;
 
     protected $fillable = [
         'user_id',
@@ -19,6 +19,8 @@ class StudentDetail extends Model
         'roll_number',
         'date_of_birth',
         'gender',
+        'blood_group',
+        'status',
     ];
 
     protected $casts = [
@@ -33,5 +35,10 @@ class StudentDetail extends Model
     public function class(): BelongsTo
     {
         return $this->belongsTo(SchoolClass::class, 'class_id');
+    }
+
+    public function documents(): MorphMany
+    {
+        return $this->morphMany(Document::class, 'documentable');
     }
 }
