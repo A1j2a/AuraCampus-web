@@ -13,6 +13,7 @@ class StudentLeaveRequest extends Model
         'parent_id',
         'reason',
         'description',
+        'attachments',
         'from_date',
         'to_date',
         'status',
@@ -25,6 +26,7 @@ class StudentLeaveRequest extends Model
         'from_date'   => 'date',
         'to_date'     => 'date',
         'reviewed_at' => 'datetime',
+        'attachments' => 'array',
     ];
 
     public function parent(): BelongsTo
