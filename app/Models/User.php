@@ -40,6 +40,7 @@ class User extends Authenticatable
         'device_info',
         'device_type',
         'device_os_version',
+        'fcm_token',
     ];
 
     /**
@@ -113,6 +114,16 @@ class User extends Authenticatable
     public function students()
     {
         return $this->belongsToMany(User::class, 'parent_student', 'parent_id', 'student_id')
+                    ->withPivot('relationship')
+                    ->withTimestamps();
+    }
+
+    /**
+     * Get parents associated with this student user (via pivot).
+     */
+    public function parents()
+    {
+        return $this->belongsToMany(User::class, 'parent_student', 'student_id', 'parent_id')
                     ->withPivot('relationship')
                     ->withTimestamps();
     }

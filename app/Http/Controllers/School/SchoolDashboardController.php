@@ -41,7 +41,7 @@ class SchoolDashboardController extends Controller
         // Student leave requests (pending first, then recent)
         $leaveRequests = StudentLeaveRequest::where('school_id', $schoolId)
             ->with(['parent', 'students', 'students.studentDetail.class'])
-            ->orderByRaw("FIELD(status, 'pending', 'approved', 'rejected')")
+            ->orderByRaw("CASE status WHEN 'pending' THEN 1 WHEN 'approved' THEN 2 WHEN 'rejected' THEN 3 ELSE 4 END")
             ->orderByDesc('created_at')
             ->take(10)
             ->get();

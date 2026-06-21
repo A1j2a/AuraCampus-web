@@ -72,8 +72,8 @@ class TeacherApiController extends Controller
         $pendingTasks = [];
         $hwWithPending = Homework::where('teacher_id', $teacherId)
             ->where('status', 'published')
+            ->whereHas('submissions', fn($q) => $q->where('status', 'submitted'))
             ->withCount(['submissions as submitted_count' => fn($q) => $q->where('status', 'submitted')])
-            ->having('submitted_count', '>', 0)
             ->get()
             ->take(3);
 
@@ -710,5 +710,77 @@ class TeacherApiController extends Controller
         if ($pct >= 40) return 'C';
         if ($pct >= 33) return 'D';
         return 'F';
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // Teacher Notifications
+    // ─────────────────────────────────────────────────────────────
+    public function getNotifications(): JsonResponse
+    {
+        $notifications = \App\Models\Notification::where('user_id', auth()->id())
+            ->latest()
+            ->get();
+
+        $categoryColors = [
+            'academic' => ['color' => '#5D36DB', 'bgLight' => '#EBE6FF'],
+            'alerts'   => ['color' => '#EF4444', 'bgLight' => '#FEE2E2'],
+            'fees'     => ['color' => '#F5A623', 'bgLight' => '#FFF3E0'],
+            'general'  => ['color' => '#4A90D9', 'bgLight' => '#E6F0FF'],
+        ];
+
+        return $this->successResponse(
+            $notifications->map(function ($n) use ($categoryColors) {
+                $category = $n->type ?? 'general';
+                $style    = $categoryColors[$category] ?? $categoryColors['general'];
+                $diffMins = now()->diffInMinutes($n->created_at);
+                $time = $diffMins < 60
+                    ? $diffMins . 'm ago'
+                    : ($diffMins < 1440 ? floor($diffMins / 60) . 'h ago' : 'Earlier');
+
+                return [
+                    'id'       => (string) $n->id,
+                    'category' => $category,
+                    'title'    => $n->title,
+                    'body'     => $n->body,
+                    'time'     => $time,
+                    'isUnread' => is_null($n->read_at),
+                    'color'    => $style['color'],
+                    'bgLight'  => $style['bgLight'],
+                ];
+            })
+        );
+    }
+
+    public function markNotificationsRead(Request $request): JsonResponse
+    {
+        $request->validate([
+            'notification_ids' => 'nullable|array',
+            'notification_ids.*' => 'integer',
+        ]);
+
+        $query = \App\Models\Notification::where('user_id', auth()->id());
+        
+        if ($request->has('notification_ids')) {
+            $query->whereIn('id', $request->notification_ids);
+        }
+
+        $query->update(['read_at' => now()]);
+
+        return $this->successResponse(null, 'Notifications marked as read.');
+    }
+
+    public function deleteNotification($notificationId): JsonResponse
+    {
+        $notification = \App\Models\Notification::where('user_id', auth()->id())
+            ->where('id', $notificationId)
+            ->first();
+
+        if (!$notification) {
+            return $this->errorResponse('Notification not found.', 404);
+        }
+
+        $notification->delete();
+
+        return $this->successResponse(null, 'Notification deleted.');
     }
 }

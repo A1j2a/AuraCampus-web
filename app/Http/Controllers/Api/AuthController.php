@@ -25,6 +25,7 @@ class AuthController extends Controller
             'device_info' => 'nullable|string',
             'device_type' => 'nullable|string',
             'device_os_version' => 'nullable|string',
+            'fcm_token' => 'nullable|string',
         ]);
 
         $user = User::where('email', $request->email)->first();
@@ -57,6 +58,7 @@ class AuthController extends Controller
             'device_info' => $request->device_info,
             'device_type' => $request->device_type,
             'device_os_version' => $request->device_os_version,
+            'fcm_token' => $request->fcm_token,
         ]);
 
         $role = $user->roles->first()?->name;
@@ -134,5 +136,21 @@ class AuthController extends Controller
                 'slug' => $user->school->slug,
             ] : null,
         ]);
+    }
+
+    /**
+     * Update authenticated user's FCM device token.
+     */
+    public function updateDeviceToken(Request $request): JsonResponse
+    {
+        $request->validate([
+            'fcm_token' => 'required|string',
+        ]);
+
+        $request->user()->update([
+            'fcm_token' => $request->fcm_token,
+        ]);
+
+        return $this->successResponse(null, 'Device token updated successfully.');
     }
 }

@@ -53,4 +53,34 @@ class Homework extends Model
     {
         return $this->hasMany(HomeworkSubmission::class);
     }
+
+    protected static function booted()
+    {
+        static::created(function ($homework) {
+            if ($homework->status === 'published') {
+                $homework->notifyStudents();
+            }
+        });
+
+        static::updated(function ($homework) {
+            if ($homework->wasChanged('status') && $homework->status === 'published') {
+                $homework->notifyStudents();
+            }
+        });
+    }
+
+    public function notifyStudents()
+    {
+        $studentUserIds = \App\Models\StudentDetail::where('class_id', $this->class_id)
+            ->pluck('user_id');
+
+        foreach ($studentUserIds as $studentUserId) {
+            \App\Models\Notification::create([
+                'user_id' => $studentUserId,
+                'title'   => "New Homework: " . $this->title,
+                'body'    => "A new homework has been assigned for " . $this->subject->name . ". Due: " . ($this->due_date ? $this->due_date->format('d M Y') : 'N/A'),
+                'type'    => 'academic',
+            ]);
+        }
+    }
 }

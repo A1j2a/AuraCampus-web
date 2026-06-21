@@ -124,6 +124,18 @@ class ParentApiController extends Controller
             ->take(3)
             ->get();
 
+        // Recent announcements
+        $notices = Notice::where('school_id', $student->school_id)
+            ->latest('published_at')->take(3)->get();
+
+        $recentAnnouncements = $notices->map(fn($n) => [
+            'id'    => 'ann_' . $n->id,
+            'title' => $n->title,
+            'body'  => $n->content,
+            'tag'   => strtoupper($n->type === 'general' ? 'info' : $n->type),
+            'date'  => $n->published_at?->format('d M Y') ?? $n->created_at->format('d M Y'),
+        ]);
+
         return $this->successResponse([
             'activeChild' => [
                 'id'         => (string) $student->id,
@@ -174,6 +186,7 @@ class ParentApiController extends Controller
                 'title' => $ev->title,
                 'meta'  => $ev->event_time ? $ev->event_time . ($ev->organizer ? ' • ' . $ev->organizer : '') : null,
             ]),
+            'recentAnnouncements' => $recentAnnouncements,
         ]);
     }
 
@@ -683,5 +696,27 @@ class ParentApiController extends Controller
                 'remarks'        => $pay->remarks,
             ]),
         ]);
+    }
+
+    public function getAnnouncements(User $student): JsonResponse
+    {
+        if (!$this->verifyChildAccess($student)) {
+            return $this->errorResponse('Access denied.', 403);
+        }
+
+        $notices = Notice::where('school_id', $student->school_id)
+            ->latest('published_at')
+            ->get();
+
+        return $this->successResponse(
+            $notices->map(fn($n) => [
+                'id'          => 'ann_' . $n->id,
+                'title'       => $n->title,
+                'body'        => $n->content,
+                'tag'         => strtoupper($n->type === 'general' ? 'info' : $n->type),
+                'date'        => $n->published_at?->format('d M Y') ?? $n->created_at->format('d M Y'),
+                'publishedAt' => $n->published_at?->format('d M Y h:i A') ?? $n->created_at->format('d M Y h:i A'),
+            ])
+        );
     }
 }

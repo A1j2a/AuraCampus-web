@@ -12,6 +12,7 @@ Route::post('/auth/login', [AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']);
+    Route::post('/device/token', [AuthController::class, 'updateDeviceToken']);
 
     // ── Teacher Portal ──────────────────────────────────────────
     Route::middleware('role:teacher')->prefix('teacher')->group(function () {
@@ -48,6 +49,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/homework/{homework}', [TeacherApiController::class, 'updateHomework']);
         Route::get('/homework/{homework}/submissions', [TeacherApiController::class, 'getSubmissions']);
         Route::post('/homework/{homework}/submissions/{studentId}/grade', [TeacherApiController::class, 'gradeSubmission']);
+
+        // Notifications
+        Route::get('/notifications', [TeacherApiController::class, 'getNotifications']);
+        Route::put('/notifications/read', [TeacherApiController::class, 'markNotificationsRead']);
+        Route::delete('/notifications/{notificationId}', [TeacherApiController::class, 'deleteNotification']);
     });
 
     // ── Parent / Student Portal ─────────────────────────────────
@@ -78,6 +84,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/children/{student}/notifications', [ParentApiController::class, 'getNotifications']);
         Route::put('/children/{student}/notifications/read', [ParentApiController::class, 'markNotificationsRead']);
         Route::delete('/children/{student}/notifications/{notificationId}', [ParentApiController::class, 'deleteNotification']);
+        Route::get('/children/{student}/announcements', [ParentApiController::class, 'getAnnouncements']);
 
         // Existing
         Route::get('/children/{student}/attendance', [ParentApiController::class, 'studentAttendance']);

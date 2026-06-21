@@ -29,6 +29,27 @@ class StudentLeaveRequest extends Model
         'attachments' => 'array',
     ];
 
+    protected static function booted()
+    {
+        static::updated(function ($leaveRequest) {
+            if ($leaveRequest->wasChanged('status')) {
+                try {
+                    $status = ucfirst($leaveRequest->status);
+                    foreach ($leaveRequest->students as $student) {
+                        \App\Models\Notification::create([
+                            'user_id' => $student->id,
+                            'title' => "Leave Request {$status}",
+                            'body' => "Leave request for {$student->name} has been {$leaveRequest->status}.",
+                            'type' => 'alerts',
+                        ]);
+                    }
+                } catch (\Exception $e) {
+                    \Illuminate\Support\Facades\Log::error("Failed to create notification on leave update: " . $e->getMessage());
+                }
+            }
+        });
+    }
+
     public function parent(): BelongsTo
     {
         return $this->belongsTo(User::class, 'parent_id');

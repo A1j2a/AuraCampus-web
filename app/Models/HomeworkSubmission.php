@@ -40,4 +40,48 @@ class HomeworkSubmission extends Model
     {
         return $this->belongsTo(User::class, 'graded_by');
     }
+
+    protected static function booted()
+    {
+        static::created(function ($submission) {
+            $homework = $submission->homework;
+            if ($homework && in_array($submission->status, ['submitted', 'late'])) {
+                $studentName = $submission->student?->name ?? 'A student';
+                \App\Models\Notification::create([
+                    'user_id' => $homework->teacher_id,
+                    'title'   => "Homework Submitted: " . $studentName,
+                    'body'    => $studentName . " submitted homework for " . $homework->subject->name . " (Title: " . $homework->title . ")",
+                    'type'    => 'academic',
+                ]);
+            }
+        });
+
+        static::updated(function ($submission) {
+            $homework = $submission->homework;
+            if (!$homework) {
+                return;
+            }
+
+            // Notify teacher on resubmission
+            if ($submission->wasChanged('status') && in_array($submission->status, ['submitted', 'late'])) {
+                $studentName = $submission->student?->name ?? 'A student';
+                \App\Models\Notification::create([
+                    'user_id' => $homework->teacher_id,
+                    'title'   => "Homework Submitted: " . $studentName,
+                    'body'    => $studentName . " submitted homework for " . $homework->subject->name . " (Title: " . $homework->title . ")",
+                    'type'    => 'academic',
+                ]);
+            }
+
+            // Notify student on grading
+            if ($submission->wasChanged('status') && in_array($submission->status, ['approved', 'revision_requested'])) {
+                \App\Models\Notification::create([
+                    'user_id' => $submission->student_id,
+                    'title'   => "Homework Graded: " . $homework->title,
+                    'body'    => "Your submission was " . str_replace('_', ' ', $submission->status) . ($submission->grade ? " with Grade: " . $submission->grade : ""),
+                    'type'    => 'academic',
+                ]);
+            }
+        });
+    }
 }
