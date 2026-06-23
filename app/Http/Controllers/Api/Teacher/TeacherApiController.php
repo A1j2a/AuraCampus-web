@@ -507,19 +507,20 @@ class TeacherApiController extends Controller
 
         return $this->successResponse(
             $homeworks->map(fn($hw) => [
-                'id'           => $hw->id,
-                'className'    => $hw->class->name . ' ' . $hw->class->section,
-                'subject'      => $hw->subject->name,
-                'title'        => $hw->title,
-                'description'  => $hw->description,
-                'dueDate'      => $hw->due_date?->format('d M Y'),
-                'priority'     => $hw->priority,
-                'status'       => $hw->status,
-                'maxMarks'     => $hw->max_marks,
-                'publishedAt'  => $hw->published_at?->format('d M Y'),
-                'savedAt'      => $hw->created_at?->format('h:i A'),
-                'attachments'  => $hw->attachments ?? [],
-                'submissions'  => $hw->submissions_count,
+                'id'            => $hw->id,
+                'className'     => $hw->class->name . ' ' . $hw->class->section,
+                'subject'       => $hw->subject->name,
+                'title'         => $hw->title,
+                'description'   => $hw->description,
+                'dueDate'       => $hw->due_date?->format('d M Y'),
+                'priority'      => $hw->priority,
+                'status'        => $hw->status,
+                'maxMarks'      => $hw->max_marks,
+                'publishedAt'   => $hw->published_at?->format('d M Y'),
+                'savedAt'       => $hw->created_at?->format('h:i A'),
+                'attachments'   => $hw->attachments ?? [],
+                'submissions'   => $hw->submissions_count,
+                'notifyParents' => (bool) $hw->notify_parents,
             ])
         );
     }
@@ -528,15 +529,16 @@ class TeacherApiController extends Controller
     public function storeHomework(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'class_id'    => 'required|exists:classes,id',
-            'subject_id'  => 'required|exists:subjects,id',
-            'title'       => 'required|string',
-            'description' => 'nullable|string',
-            'due_date'    => 'nullable|date',
-            'priority'    => 'nullable|in:low,medium,high',
-            'status'      => 'nullable|in:draft,published',
-            'max_marks'   => 'nullable|integer|min:1',
-            'attachments' => 'nullable|array',
+            'class_id'       => 'required|exists:classes,id',
+            'subject_id'     => 'required|exists:subjects,id',
+            'title'          => 'required|string',
+            'description'    => 'nullable|string',
+            'due_date'       => 'nullable|date',
+            'priority'       => 'nullable|in:low,medium,high',
+            'status'         => 'nullable|in:draft,published',
+            'max_marks'      => 'nullable|integer|min:1',
+            'attachments'    => 'nullable|array',
+            'notify_parents' => 'nullable|boolean',
         ]);
 
         $data['teacher_id']   = auth()->id();
@@ -556,13 +558,14 @@ class TeacherApiController extends Controller
         }
 
         $data = $request->validate([
-            'title'       => 'sometimes|string',
-            'description' => 'nullable|string',
-            'due_date'    => 'nullable|date',
-            'priority'    => 'nullable|in:low,medium,high',
-            'status'      => 'nullable|in:draft,published',
-            'max_marks'   => 'nullable|integer|min:1',
-            'attachments' => 'nullable|array',
+            'title'          => 'sometimes|string',
+            'description'    => 'nullable|string',
+            'due_date'       => 'nullable|date',
+            'priority'       => 'nullable|in:low,medium,high',
+            'status'         => 'nullable|in:draft,published',
+            'max_marks'      => 'nullable|integer|min:1',
+            'attachments'    => 'nullable|array',
+            'notify_parents' => 'nullable|boolean',
         ]);
 
         if (isset($data['status']) && $data['status'] === 'published' && !$homework->published_at) {

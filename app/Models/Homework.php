@@ -26,12 +26,14 @@ class Homework extends Model
         'max_marks',
         'attachments',
         'published_at',
+        'notify_parents',
     ];
 
     protected $casts = [
-        'due_date'     => 'datetime',
-        'published_at' => 'datetime',
-        'attachments'  => 'array',
+        'due_date'       => 'datetime',
+        'published_at'   => 'datetime',
+        'attachments'    => 'array',
+        'notify_parents' => 'boolean',
     ];
 
     public function class(): BelongsTo
@@ -75,12 +77,14 @@ class Homework extends Model
             ->pluck('user_id');
 
         foreach ($studentUserIds as $studentUserId) {
-            \App\Models\Notification::create([
+            $notification = new \App\Models\Notification([
                 'user_id' => $studentUserId,
                 'title'   => "New Homework: " . $this->title,
                 'body'    => "A new homework has been assigned for " . $this->subject->name . ". Due: " . ($this->due_date ? $this->due_date->format('d M Y') : 'N/A'),
                 'type'    => 'academic',
             ]);
+            $notification->dont_notify_parents = !$this->notify_parents;
+            $notification->save();
         }
     }
 }

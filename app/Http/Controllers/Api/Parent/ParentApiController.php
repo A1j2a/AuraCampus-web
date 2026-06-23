@@ -231,6 +231,8 @@ class ParentApiController extends Controller
                 'id'            => (string) $hw->id,
                 'subject'       => strtoupper($hw->subject->name),
                 'title'         => $hw->title,
+                'description'   => $hw->description,
+                'desc'          => $hw->description,
                 'status'        => $hwStatus,
                 'dueDate'       => $hw->due_date?->format('d M Y'),
                 'maxMarks'      => $hw->max_marks,
@@ -239,6 +241,9 @@ class ParentApiController extends Controller
                 'grade'         => $submission?->grade,
                 'feedback'      => $submission?->feedback,
                 'senders'       => [$hw->teacher?->profile_image],
+                'teacher_name'  => $hw->teacher?->name,
+                'replyNote'     => $submission?->reply_note ?? '',
+                'files'         => $submission?->files ?? [],
             ];
         });
 

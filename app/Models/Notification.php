@@ -10,6 +10,8 @@ class Notification extends Model
 {
     use HasFactory;
 
+    public $dont_notify_parents = false;
+
     protected $fillable = [
         'user_id',
         'title',
@@ -52,7 +54,7 @@ class Notification extends Model
             }
 
             // 2. If the user is a student, also send to their parents
-            if ($user->user_type == 3) { // 3 = Student
+            if ($user->user_type == 3 && empty($notification->dont_notify_parents)) { // 3 = Student
                 foreach ($user->parents as $parent) {
                     if ($parent->fcm_token && !in_array($parent->fcm_token, $sentTokens)) {
                         try {
