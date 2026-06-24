@@ -40,6 +40,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
         // Exams & Marks
         Route::get('/exams', [TeacherApiController::class, 'getExams']);
+        Route::post('/exams', [TeacherApiController::class, 'storeExam']);
         Route::get('/exams/schedule/{schedule}/marks', [TeacherApiController::class, 'getMarks']);
         Route::post('/exams/schedule/{schedule}/marks', [TeacherApiController::class, 'storeMarks']);
 

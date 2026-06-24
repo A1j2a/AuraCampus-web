@@ -8,6 +8,8 @@ use App\Models\Attendance;
 use App\Models\Notice;
 use App\Models\TimetableSlot;
 use App\Models\Mark;
+use App\Models\Exam;
+use App\Models\ExamSchedule;
 use App\Models\FeeStructure;
 use App\Models\FeePayment;
 use App\Models\AcademicSession;
@@ -85,7 +87,13 @@ class ParentApiController extends Controller
 
         // Upcoming exams
         $upcomingExamsCount = \App\Models\ExamSchedule::where('class_id', $classId)
-            ->whereHas('exam', fn($q) => $q->where('status', 'upcoming'))
+            ->where(function($q) {
+                $q->where('exam_date', '>', now()->toDateString())
+                  ->orWhere(function($sq) {
+                      $sq->where('exam_date', '=', now()->toDateString())
+                         ->where('end_time', '>', now()->toTimeString());
+                  });
+            })
             ->count();
 
         // Latest result
@@ -299,42 +307,127 @@ class ParentApiController extends Controller
             return $this->errorResponse('Access denied.', 403);
         }
 
-        $marks = Mark::with(['examSchedule.exam', 'examSchedule.subject', 'examSchedule.class'])
+        $marks = Mark::with(['examSchedule.exam', 'examSchedule.subject', 'examSchedule.class', 'teacher'])
             ->where('student_id', $student->id)
-            ->latest()
             ->get();
 
         // Check honor roll: avg >= 85%
         $avgPct = $marks->isNotEmpty()
-            ? $marks->avg(fn($m) => ($m->marks_obtained / $m->examSchedule->max_marks) * 100)
+            ? $marks->avg(fn($m) => $m->examSchedule->max_marks > 0 ? ($m->marks_obtained / $m->examSchedule->max_marks) * 100 : 0)
             : 0;
 
-        $results = $marks->map(function ($mark) use ($student) {
-            $sched = $mark->examSchedule;
-            $pct   = round(($mark->marks_obtained / $sched->max_marks) * 100);
+        // Group marks by exam_id
+        $grouped = $marks->groupBy(function ($mark) {
+            return $mark->examSchedule->exam_id;
+        });
 
-            // Class rank: count how many students scored higher
-            $rank = Mark::where('exam_schedule_id', $sched->id)
-                ->where('marks_obtained', '>', $mark->marks_obtained)
-                ->count() + 1;
+        $results = [];
+        $classId = $student->studentDetail?->class_id;
 
-            // Class average %
-            $classAvgRaw = Mark::where('exam_schedule_id', $sched->id)->avg('marks_obtained');
-            $classAvgPct = $classAvgRaw ? round(($classAvgRaw / $sched->max_marks) * 100) : 0;
+        foreach ($grouped as $examId => $examMarks) {
+            $firstMark = $examMarks->first();
+            $exam = $firstMark->examSchedule->exam;
+            
+            // Get all schedules for this exam in this class
+            $scheduleIds = ExamSchedule::where('exam_id', $examId)
+                ->where('class_id', $classId)
+                ->pluck('id');
 
-            return [
-                'id'           => (string) $mark->id,
-                'examTitle'    => $sched->exam->name,
-                'subject'      => $sched->subject->name,
-                'date'         => $sched->exam_date ? Carbon::parse($sched->exam_date)->format('d M Y') : null,
-                'marksObtained'=> $mark->marks_obtained,
-                'maxMarks'     => $sched->max_marks,
-                'percentage'   => $pct . '%',
-                'grade'        => $mark->grade,
-                'classRank'    => '#' . $rank,
-                'classAverage' => $classAvgPct . '%',
-                'isPublished'  => true,
+            // Find all marks of all students for these schedules to calculate overall class rank & averages
+            $allMarksForExam = Mark::with('examSchedule')
+                ->whereIn('exam_schedule_id', $scheduleIds)
+                ->get();
+
+            $studentScores = $allMarksForExam->groupBy('student_id')->map(function($studentMarks) {
+                $obtained = $studentMarks->sum('marks_obtained');
+                $max = $studentMarks->sum(function($m) {
+                    return $m->examSchedule->max_marks;
+                });
+                return [
+                    'obtained' => $obtained,
+                    'max' => $max,
+                    'pct' => $max > 0 ? ($obtained / $max) * 100 : 0
+                ];
+            });
+
+            $studentScoreInfo = $studentScores->get($student->id) ?: ['pct' => 0, 'obtained' => 0, 'max' => 0];
+            $studentPct = $studentScoreInfo['pct'];
+            
+            $rank = $studentScores->filter(fn($score) => $score['pct'] > $studentPct)->count() + 1;
+            $totalStudentsInClass = $studentScores->count();
+            
+            $classAvgPct = $studentScores->avg('pct') ?: 0;
+
+            // Build subjects list
+            $subjectsList = $examMarks->map(function ($mark) {
+                $sched = $mark->examSchedule;
+                $pct = $sched->max_marks > 0 ? round(($mark->marks_obtained / $sched->max_marks) * 100) : 0;
+                
+                // Subject rank
+                $subRank = Mark::where('exam_schedule_id', $sched->id)
+                    ->where('marks_obtained', '>', $mark->marks_obtained)
+                    ->count() + 1;
+                
+                // Subject average
+                $subAvgRaw = Mark::where('exam_schedule_id', $sched->id)->avg('marks_obtained');
+                $subAvgPct = $subAvgRaw ? round(($subAvgRaw / $sched->max_marks) * 100) : 0;
+
+                return [
+                    'id' => (string) $mark->id,
+                    'name' => $sched->subject->name,
+                    'code' => $sched->subject->code,
+                    'score' => $mark->marks_obtained,
+                    'total' => $sched->max_marks,
+                    'percentage' => $pct . '%',
+                    'grade' => $mark->grade,
+                    'subjectRank' => '#' . $subRank,
+                    'classAverage' => $subAvgPct . '%',
+                    'remarks' => $mark->remarks,
+                    'teacherName' => $mark->teacher?->name,
+                ];
+            })->values()->toArray();
+
+            // Determine overall grade based on percentage
+            $overallPct = $studentPct;
+            $overallGrade = 'F';
+            if ($overallPct >= 90) $overallGrade = 'A+';
+            elseif ($overallPct >= 80) $overallGrade = 'A';
+            elseif ($overallPct >= 70) $overallGrade = 'B';
+            elseif ($overallPct >= 60) $overallGrade = 'C';
+            elseif ($overallPct >= 50) $overallGrade = 'D';
+
+            // Gather remarks and teacher names
+            $remarksArray = $examMarks->pluck('remarks')->filter()->unique()->values()->toArray();
+            $remarks = !empty($remarksArray) ? implode('; ', $remarksArray) : 'Keep it up!';
+            $teachers = $examMarks->map(fn($m) => $m->teacher?->name)->filter()->unique()->values()->toArray();
+            $teacherName = !empty($teachers) ? implode(', ', $teachers) : 'Class Teacher';
+
+            $isSingleSubject = count($subjectsList) === 1;
+
+            $results[] = [
+                'id' => (string) $examId,
+                'examTitle' => $exam->name,
+                'subject' => $isSingleSubject ? $subjectsList[0]['name'] : implode(', ', array_column($subjectsList, 'name')),
+                'date' => $firstMark->examSchedule->exam_date ? Carbon::parse($firstMark->examSchedule->exam_date)->format('d M Y') : null,
+                'marksObtained' => $studentScoreInfo['obtained'],
+                'maxMarks' => $studentScoreInfo['max'],
+                'percentage' => round($studentPct, 1) . '%',
+                'grade' => $overallGrade,
+                'classRank' => '#' . $rank,
+                'totalClassStudents' => $totalStudentsInClass,
+                'classAverage' => round($classAvgPct, 1) . '%',
+                'isPublished' => true,
+                'subjects' => $subjectsList,
+                'studentName' => $student->name,
+                'studentGradeRoll' => ($student->studentDetail?->class ? 'Class ' . $student->studentDetail->class->name . $student->studentDetail->class->section : '') . ($student->studentDetail?->roll_number ? ' • Roll No: ' . $student->studentDetail->roll_number : ''),
+                'remarks' => $remarks,
+                'teacherName' => $teacherName,
             ];
+        }
+
+        // Sort results by date/id descending so newest results are first
+        usort($results, function($a, $b) {
+            return strcmp($b['date'] ?? '', $a['date'] ?? '');
         });
 
         return $this->successResponse([
@@ -620,28 +713,52 @@ class ParentApiController extends Controller
             return $this->errorResponse('Access denied.', 403);
         }
 
-        $marks = Mark::with(['examSchedule.exam', 'examSchedule.subject'])
-            ->where('student_id', $student->id)
+        $detail = $student->studentDetail;
+        if (!$detail) {
+            return $this->successResponse([]);
+        }
+        $classId = $detail->class_id;
+
+        $schedules = ExamSchedule::with(['exam', 'subject'])
+            ->where('class_id', $classId)
             ->get();
 
         return $this->successResponse(
-            $marks->map(fn($mark) => [
-                'id'             => $mark->id,
-                'marks_obtained' => $mark->marks_obtained,
-                'grade'          => $mark->grade,
-                'remarks'        => $mark->remarks,
-                'exam'           => [
-                    'id'   => $mark->examSchedule->exam->id,
-                    'name' => $mark->examSchedule->exam->name,
-                    'type' => $mark->examSchedule->exam->type,
-                ],
-                'subject'        => [
-                    'name' => $mark->examSchedule->subject->name,
-                    'code' => $mark->examSchedule->subject->code,
-                ],
-                'max_marks'      => $mark->examSchedule->max_marks,
-                'passing_marks'  => $mark->examSchedule->passing_marks,
-            ])
+            $schedules->map(function ($sched) use ($student) {
+                $mark = Mark::where('exam_schedule_id', $sched->id)
+                    ->where('student_id', $student->id)
+                    ->first();
+
+                $hasMark = $mark !== null;
+                $examEndDateTime = \Illuminate\Support\Carbon::parse($sched->exam_date . ' ' . $sched->end_time);
+                $isPassed = now()->greaterThanOrEqualTo($examEndDateTime);
+                $status = ($hasMark || $isPassed) ? 'completed' : 'upcoming';
+
+                return [
+                    'id'             => (string) $sched->id,
+                    'exam_name'      => $sched->exam->name,
+                    'subject_name'   => $sched->subject->name,
+                    'exam_date'      => $sched->exam_date,
+                    'time_slot'      => \Illuminate\Support\Carbon::parse($sched->start_time)->format('h:i A') . ' - ' . \Illuminate\Support\Carbon::parse($sched->end_time)->format('h:i A'),
+                    'duration'       => \Illuminate\Support\Carbon::parse($sched->start_time)->diffInMinutes(\Illuminate\Support\Carbon::parse($sched->end_time)),
+                    'max_marks'      => $sched->max_marks,
+                    'passing_marks'  => $sched->passing_marks,
+                    'syllabus'       => $sched->syllabus_description ?? '',
+                    'status'         => $status,
+                    'marks_obtained' => $hasMark ? $mark->marks_obtained : null,
+                    'grade'          => $hasMark ? $mark->grade : null,
+                    'remarks'        => $hasMark ? $mark->remarks : null,
+                    'exam'           => [
+                        'id'   => $sched->exam->id,
+                        'name' => $sched->exam->name,
+                        'type' => $sched->exam->type,
+                    ],
+                    'subject'        => [
+                        'name' => $sched->subject->name,
+                        'code' => $sched->subject->code,
+                    ],
+                ];
+            })
         );
     }
 

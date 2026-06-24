@@ -25,6 +25,20 @@ class ExamController extends Controller
             ->latest()
             ->get();
 
+        $today = now()->toDateString();
+        foreach ($exams as $exam) {
+            $computedStatus = 'upcoming';
+            if ($today > $exam->end_date) {
+                $computedStatus = 'completed';
+            } elseif ($today >= $exam->start_date && $today <= $exam->end_date) {
+                $computedStatus = 'ongoing';
+            }
+            if ($exam->status !== $computedStatus) {
+                $exam->status = $computedStatus;
+                $exam->save();
+            }
+        }
+
         return view('school.exams.index', compact('exams'));
     }
 
@@ -61,6 +75,18 @@ class ExamController extends Controller
         // Ensure tenant isolation
         if ($exam->school_id !== auth()->user()->school_id) {
             abort(403, 'Unauthorized.');
+        }
+
+        $today = now()->toDateString();
+        $computedStatus = 'upcoming';
+        if ($today > $exam->end_date) {
+            $computedStatus = 'completed';
+        } elseif ($today >= $exam->start_date && $today <= $exam->end_date) {
+            $computedStatus = 'ongoing';
+        }
+        if ($exam->status !== $computedStatus) {
+            $exam->status = $computedStatus;
+            $exam->save();
         }
 
         $schoolId = auth()->user()->school_id;

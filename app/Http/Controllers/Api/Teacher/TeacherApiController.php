@@ -401,14 +401,54 @@ class TeacherApiController extends Controller
     // ─────────────────────────────────────────────────────────────
     public function getExams(): JsonResponse
     {
-        $classIds = DB::table('class_subject')
-            ->where('teacher_id', auth()->id())
-            ->pluck('class_id')->unique();
+        $teacherId = auth()->id();
+
+        // Classes where this teacher is the class teacher
+        $classTeacherClassIds = SchoolClass::where('teacher_id', $teacherId)->pluck('id')->toArray();
+
+        // Classes and subjects where this teacher is the subject teacher
+        $subjectTeacherAssignments = DB::table('class_subject')
+            ->where('teacher_id', $teacherId)
+            ->get();
+
+        if (empty($classTeacherClassIds) && $subjectTeacherAssignments->isEmpty()) {
+            return $this->successResponse([]);
+        }
 
         $schedules = ExamSchedule::with(['exam', 'class', 'subject'])
-            ->whereIn('class_id', $classIds)
+            ->where(function ($query) use ($classTeacherClassIds, $subjectTeacherAssignments) {
+                // If class teacher, get all schedules for those classes
+                if (!empty($classTeacherClassIds)) {
+                    $query->whereIn('class_id', $classTeacherClassIds);
+                }
+
+                // Plus, get schedules for classes and subjects they teach
+                foreach ($subjectTeacherAssignments as $assignment) {
+                    $query->orWhere(function ($q) use ($assignment) {
+                        $q->where('class_id', $assignment->class_id)
+                          ->where('subject_id', $assignment->subject_id);
+                    });
+                }
+            })
             ->latest()
             ->get();
+
+        $today = now()->toDateString();
+        foreach ($schedules as $sched) {
+            $exam = $sched->exam;
+            if ($exam) {
+                $computedStatus = 'upcoming';
+                if ($today > $exam->end_date) {
+                    $computedStatus = 'completed';
+                } elseif ($today >= $exam->start_date && $today <= $exam->end_date) {
+                    $computedStatus = 'ongoing';
+                }
+                if ($exam->status !== $computedStatus) {
+                    $exam->status = $computedStatus;
+                    $exam->save();
+                }
+            }
+        }
 
         return $this->successResponse(
             $schedules->map(fn($sched) => [
@@ -430,6 +470,20 @@ class TeacherApiController extends Controller
     // GET /api/teacher/exams/schedule/{schedule}/marks
     public function getMarks(ExamSchedule $schedule): JsonResponse
     {
+        $teacherId = auth()->id();
+        $isClassTeacher = SchoolClass::where('id', $schedule->class_id)
+            ->where('teacher_id', $teacherId)
+            ->exists();
+        $isSubjectTeacher = DB::table('class_subject')
+            ->where('class_id', $schedule->class_id)
+            ->where('subject_id', $schedule->subject_id)
+            ->where('teacher_id', $teacherId)
+            ->exists();
+
+        if (!$isClassTeacher && !$isSubjectTeacher) {
+            return $this->errorResponse('You do not have permission to enter marks for this exam schedule.', 403);
+        }
+
         $students = StudentDetail::where('class_id', $schedule->class_id)->with('user')->get();
         $records  = Mark::where('exam_schedule_id', $schedule->id)->get()->keyBy('student_id');
 
@@ -454,12 +508,30 @@ class TeacherApiController extends Controller
     // POST /api/teacher/exams/schedule/{schedule}/marks
     public function storeMarks(Request $request, ExamSchedule $schedule): JsonResponse
     {
+        $teacherId = auth()->id();
+        $isClassTeacher = SchoolClass::where('id', $schedule->class_id)
+            ->where('teacher_id', $teacherId)
+            ->exists();
+        $isSubjectTeacher = DB::table('class_subject')
+            ->where('class_id', $schedule->class_id)
+            ->where('subject_id', $schedule->subject_id)
+            ->where('teacher_id', $teacherId)
+            ->exists();
+
+        if (!$isClassTeacher && !$isSubjectTeacher) {
+            return $this->errorResponse('You do not have permission to enter marks for this exam schedule.', 403);
+        }
+
         $request->validate([
             'marks'                    => 'required|array',
             'marks.*.student_id'       => 'required|exists:users,id',
             'marks.*.marks_obtained'   => 'required|numeric|min:0|max:' . $schedule->max_marks,
             'marks.*.remarks'          => 'nullable|string',
         ]);
+
+        if (\Carbon\Carbon::parse($schedule->exam_date)->isFuture()) {
+            return $this->errorResponse('Cannot enter marks for an upcoming exam.', 422);
+        }
 
         $schoolId = auth()->user()->school_id;
 
@@ -489,6 +561,9 @@ class TeacherApiController extends Controller
                 ]
             );
         }
+
+        // Update exam status to completed
+        $schedule->exam()->update(['status' => 'completed']);
 
         return $this->successResponse(null, 'Marks recorded successfully.');
     }
@@ -785,5 +860,64 @@ class TeacherApiController extends Controller
         $notification->delete();
 
         return $this->successResponse(null, 'Notification deleted.');
+    }
+
+    public function storeExam(Request $request): JsonResponse
+    {
+        $request->validate([
+            'class_id'       => 'required|exists:classes,id',
+            'subject_id'     => 'required|exists:subjects,id',
+            'name'           => 'required|string|max:255',
+            'type'           => 'required|string',
+            'exam_date'      => 'required|date',
+            'start_time'     => 'required|string',
+            'end_time'       => 'required|string',
+            'max_marks'      => 'required|integer|min:1',
+            'passing_marks'  => 'required|integer|min:1',
+        ]);
+
+        $schoolId = auth()->user()->school_id;
+
+        // Get active academic session
+        $session = \App\Models\AcademicSession::where('school_id', $schoolId)
+            ->where('is_active', true)
+            ->first();
+
+        // 1. Create the Exam
+        $exam = Exam::create([
+            'school_id'           => $schoolId,
+            'academic_session_id' => $session?->id,
+            'name'                => $request->name,
+            'type'                => $request->type,
+            'start_date'          => $request->exam_date,
+            'end_date'            => $request->exam_date,
+            'status'              => 'upcoming',
+        ]);
+
+        // 2. Create the ExamSchedule
+        $schedule = ExamSchedule::create([
+            'exam_id'       => $exam->id,
+            'class_id'      => $request->class_id,
+            'subject_id'    => $request->subject_id,
+            'exam_date'     => $request->exam_date,
+            'start_time'    => \Illuminate\Support\Carbon::parse($request->start_time)->format('H:i:s'),
+            'end_time'      => \Illuminate\Support\Carbon::parse($request->end_time)->format('H:i:s'),
+            'max_marks'     => $request->max_marks,
+            'passing_marks' => $request->passing_marks,
+        ]);
+
+        return $this->successResponse([
+            'id'           => $schedule->id,
+            'examId'       => 'ex_' . $exam->id,
+            'className'    => $schedule->class->name . ' ' . $schedule->class->section,
+            'subject'      => $schedule->subject->name,
+            'exam'         => $exam->name,
+            'academicYear' => $session?->name ?? '',
+            'totalMarks'   => $schedule->max_marks,
+            'passingMarks' => $schedule->passing_marks,
+            'examDate'     => $schedule->exam_date,
+            'status'       => $exam->status,
+            'publishedAt'  => $exam->updated_at?->format('d M Y'),
+        ], 'Exam created successfully.', 201);
     }
 }

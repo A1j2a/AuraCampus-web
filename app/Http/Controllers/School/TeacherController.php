@@ -163,15 +163,36 @@ class TeacherController extends Controller
             );
 
             // Sync subjects
-            if ($request->has('subject_ids')) {
-                $teacher->subjects()->sync($request->subject_ids);
+            $subjectIds = $request->input('subject_ids', []);
+            $teacher->subjects()->sync($subjectIds);
+
+            // Clean up class_subject and timetable_slots for subjects the teacher is no longer qualified to teach
+            if (empty($subjectIds)) {
+                DB::table('class_subject')
+                    ->where('teacher_id', $teacher->id)
+                    ->update(['teacher_id' => null]);
+
+                DB::table('timetable_slots')
+                    ->where('teacher_id', $teacher->id)
+                    ->update(['teacher_id' => null]);
+            } else {
+                DB::table('class_subject')
+                    ->where('teacher_id', $teacher->id)
+                    ->whereNotIn('subject_id', $subjectIds)
+                    ->update(['teacher_id' => null]);
+
+                DB::table('timetable_slots')
+                    ->where('teacher_id', $teacher->id)
+                    ->whereNotIn('subject_id', $subjectIds)
+                    ->update(['teacher_id' => null]);
             }
 
             // Update class assignments
             TeacherClassSection::where('teacher_id', $teacher->id)->delete();
 
-            if ($request->class_ids) {
-                foreach ($request->class_ids as $classId) {
+            $classIds = $request->input('class_ids', []);
+            if ($classIds) {
+                foreach ($classIds as $classId) {
                     TeacherClassSection::create([
                         'teacher_id'       => $teacher->id,
                         'class_id'         => $classId,
@@ -180,12 +201,34 @@ class TeacherController extends Controller
                 }
             }
 
-            if ($request->class_teacher_of && !in_array($request->class_teacher_of, $request->class_ids ?? [])) {
+            if ($request->class_teacher_of && !in_array($request->class_teacher_of, $classIds)) {
                 TeacherClassSection::create([
                     'teacher_id'       => $teacher->id,
                     'class_id'         => $request->class_teacher_of,
                     'is_class_teacher' => true,
                 ]);
+                $classIds[] = $request->class_teacher_of;
+            }
+
+            // Clean up class_subject and timetable_slots for classes the teacher is no longer assigned to
+            if (empty($classIds)) {
+                DB::table('class_subject')
+                    ->where('teacher_id', $teacher->id)
+                    ->update(['teacher_id' => null]);
+
+                DB::table('timetable_slots')
+                    ->where('teacher_id', $teacher->id)
+                    ->update(['teacher_id' => null]);
+            } else {
+                DB::table('class_subject')
+                    ->where('teacher_id', $teacher->id)
+                    ->whereNotIn('class_id', $classIds)
+                    ->update(['teacher_id' => null]);
+
+                DB::table('timetable_slots')
+                    ->where('teacher_id', $teacher->id)
+                    ->whereNotIn('class_id', $classIds)
+                    ->update(['teacher_id' => null]);
             }
 
             // Sync classes.teacher_id
