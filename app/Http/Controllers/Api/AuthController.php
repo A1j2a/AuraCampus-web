@@ -85,6 +85,7 @@ class AuthController extends Controller
             'email' => $user->email,
             'user_type' => $user->user_type,
             'role' => $displayRole,
+            'profile_image' => $user->profile_image ? url('storage/' . $user->profile_image) : null,
             'created_at' => $user->created_at ? $user->created_at->toISOString() : null,
             'resetToken' => '',
             'device_info' => $user->device_info,
@@ -130,6 +131,7 @@ class AuthController extends Controller
             'email' => $user->email,
             'user_type' => $user->user_type,
             'role' => $displayRole,
+            'profile_image' => $user->profile_image ? url('storage/' . $user->profile_image) : null,
             'school' => $user->school ? [
                 'id' => $user->school->id,
                 'name' => $user->school->name,

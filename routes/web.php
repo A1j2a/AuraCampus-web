@@ -120,6 +120,7 @@ Route::middleware(['auth', 'verified', 'role:school-admin'])
         Route::get('/timetable', [TimetableController::class, 'index'])->name('timetable.index');
         Route::post('/timetable', [TimetableController::class, 'store'])->name('timetable.store');
         Route::delete('/timetable/{slot}', [TimetableController::class, 'destroy'])->name('timetable.destroy');
+        Route::post('/timetable/periods', [TimetableController::class, 'updatePeriods'])->name('timetable.periods.update');
 
         // Fees
         // Route::get('/fees/structures', [FeeStructureController::class, 'index'])->name('fees.index');

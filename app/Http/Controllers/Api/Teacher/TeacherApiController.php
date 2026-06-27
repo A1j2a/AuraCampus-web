@@ -232,7 +232,7 @@ class TeacherApiController extends Controller
                 'roll_number'      => $s->roll_number,
                 'admission_number' => $s->admission_number,
                 'gender'           => $s->gender,
-                'avatar_url'       => $s->user->profile_image,
+                'avatar_url'       => $s->user->profile_image ? url('storage/' . $s->user->profile_image) : null,
             ]),
         ]);
     }
@@ -253,7 +253,7 @@ class TeacherApiController extends Controller
                 'roll_number'      => $s->roll_number,
                 'admission_number' => $s->admission_number,
                 'gender'           => $s->gender,
-                'avatar_url'       => $s->user->profile_image,
+                'avatar_url'       => $s->user->profile_image ? url('storage/' . $s->user->profile_image) : null,
             ])
         );
     }
@@ -307,7 +307,7 @@ class TeacherApiController extends Controller
             'student' => [
                 'id'            => '#' . $detail->admission_number,
                 'name'          => $user->name,
-                'photoUrl'      => $user->profile_image,
+                'photoUrl'      => $user->profile_image ? url('storage/' . $user->profile_image) : null,
                 'academicScore' => $totalPct,
                 'className'     => $detail->class ? $detail->class->name . ' ' . $detail->class->section : null,
                 'homework'      => ['completed' => $hwCompleted, 'pending' => $hwPending],
@@ -681,7 +681,7 @@ class TeacherApiController extends Controller
             'submissions' => $submissions->map(fn($sub) => [
                 'studentId'   => $sub->student_id,
                 'studentName' => $sub->student->name,
-                'avatarUrl'   => $sub->student->profile_image,
+                'avatarUrl'   => $sub->student->profile_image ? url('storage/' . $sub->student->profile_image) : null,
                 'status'      => $sub->status,
                 'submittedAt' => $sub->submitted_at?->format('d M Y, h:i A'),
                 'files'       => $sub->files ?? [],

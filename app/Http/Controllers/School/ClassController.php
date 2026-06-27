@@ -44,8 +44,20 @@ class ClassController extends Controller
             'teacher_id'  => 'nullable|exists:users,id',
         ]);
 
+        $schoolId = auth()->user()->school_id;
+
+        // Check if duplicate class/section exists in the same school
+        $duplicate = SchoolClass::where('school_id', $schoolId)
+            ->where('name', $request->name)
+            ->where('section', strtoupper($request->section))
+            ->exists();
+
+        if ($duplicate) {
+            return back()->withErrors(['name' => 'This class and section already exists.'])->withInput();
+        }
+
         SchoolClass::create([
-            'school_id'   => auth()->user()->school_id,
+            'school_id'   => $schoolId,
             'name'        => $request->name,
             'section'     => strtoupper($request->section),
             'room_number' => $request->room_number,
@@ -68,6 +80,19 @@ class ClassController extends Controller
             'capacity'    => 'nullable|integer|min:1',
             'teacher_id'  => 'nullable|exists:users,id',
         ]);
+
+        $schoolId = auth()->user()->school_id;
+
+        // Check if duplicate class/section exists in the same school
+        $duplicate = SchoolClass::where('school_id', $schoolId)
+            ->where('name', $request->name)
+            ->where('section', strtoupper($request->section))
+            ->where('id', '!=', $class->id)
+            ->exists();
+
+        if ($duplicate) {
+            return back()->withErrors(['name' => 'This class and section already exists.'])->withInput();
+        }
 
         $class->update([
             'name'        => $request->name,

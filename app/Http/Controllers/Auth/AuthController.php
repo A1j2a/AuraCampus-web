@@ -60,7 +60,13 @@ class AuthController extends Controller
      */
     public function showLogin(): View
     {
-        return view('auth.login');
+        $superAdmin = User::role('super-admin')->first();
+        $schoolAdmins = User::role('school-admin')
+            ->whereNotNull('school_id')
+            ->with('school')
+            ->get();
+
+        return view('auth.login', compact('superAdmin', 'schoolAdmins'));
     }
 
     /**

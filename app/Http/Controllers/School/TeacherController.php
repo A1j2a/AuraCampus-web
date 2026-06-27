@@ -46,12 +46,13 @@ class TeacherController extends Controller
             'name'           => 'required|string|max:255',
             'email'          => 'required|email|unique:users,email',
             'mobile'         => 'required|string|max:15',
-            'employee_id'    => 'required|string|max:50',
+            'employee_id'    => 'nullable|string|max:50',
             'designation'    => 'required|string|max:255',
             'qualification'  => 'required|string|max:255',
             'experience'     => 'nullable|string|max:50',
             'joining_date'   => 'nullable|date',
             'address'        => 'nullable|string|max:500',
+            'profile_image'  => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'class_ids'      => 'nullable|array',
             'class_ids.*'    => 'exists:classes,id',
             'class_teacher_of' => 'nullable|exists:classes,id',
@@ -65,12 +66,18 @@ class TeacherController extends Controller
             $username = $this->generateUsername($request->name);
             $password = $this->generatePassword($request->name);
 
+            $profileImagePath = null;
+            if ($request->hasFile('profile_image')) {
+                $profileImagePath = $request->file('profile_image')->store('profiles', 'public');
+            }
+
             $user = User::create([
-                'name'      => $request->name,
-                'email'     => $request->email,
-                'phone'     => $request->mobile,
-                'password'  => Hash::make($password),
-                'school_id' => $schoolId,
+                'name'          => $request->name,
+                'email'         => $request->email,
+                'phone'         => $request->mobile,
+                'password'      => Hash::make($password),
+                'school_id'     => $schoolId,
+                'profile_image' => $profileImagePath,
             ]);
             $user->assignRole('teacher');
 
@@ -131,12 +138,13 @@ class TeacherController extends Controller
             'name'             => 'required|string|max:255',
             'email'            => 'required|email|unique:users,email,' . $teacher->id,
             'mobile'           => 'required|string|max:15',
-            'employee_id'      => 'required|string|max:50',
+            'employee_id'      => 'nullable|string|max:50',
             'designation'      => 'required|string|max:255',
             'qualification'    => 'required|string|max:255',
             'experience'       => 'nullable|string|max:50',
             'joining_date'     => 'nullable|date',
             'address'          => 'nullable|string|max:500',
+            'profile_image'    => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'class_ids'        => 'nullable|array',
             'class_ids.*'      => 'exists:classes,id',
             'class_teacher_of' => 'nullable|exists:classes,id',
@@ -145,11 +153,20 @@ class TeacherController extends Controller
         ]);
 
         DB::transaction(function () use ($request, $teacher) {
-            $teacher->update([
+            $updateData = [
                 'name'  => $request->name,
                 'email' => $request->email,
                 'phone' => $request->mobile,
-            ]);
+            ];
+
+            if ($request->hasFile('profile_image')) {
+                if ($teacher->profile_image) {
+                    \Illuminate\Support\Facades\Storage::disk('public')->delete($teacher->profile_image);
+                }
+                $updateData['profile_image'] = $request->file('profile_image')->store('profiles', 'public');
+            }
+
+            $teacher->update($updateData);
 
             $teacher->teacherDetail()->updateOrCreate(
                 ['user_id' => $teacher->id],

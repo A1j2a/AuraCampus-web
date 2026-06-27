@@ -3,7 +3,17 @@
 @section('title', 'AuraCampus | Notice Board')
 
 @section('content')
-<div x-data="{ showModal: {{ $errors->any() ? 'true' : 'false' }} }">
+<div x-data="{ 
+    showModal: {{ $errors->any() ? 'true' : 'false' }},
+    deleteModal: false,
+    deleteUrl: '',
+    deleteNoticeTitle: '',
+    confirmDelete(url, title) {
+        this.deleteUrl = url;
+        this.deleteNoticeTitle = title;
+        this.deleteModal = true;
+    }
+}">
     <!-- Header -->
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
         <div>
@@ -47,13 +57,9 @@
                     <span class="px-2 py-0.5 border text-[9px] font-mono rounded font-bold uppercase {{ $badgeClass }}">
                         {{ $notice->type }}
                     </span>
-                    <form method="POST" action="{{ route('school.notices.destroy', $notice) }}" class="inline-block" onsubmit="return confirm('Are you sure you want to delete this notice?');">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="text-slate-400 hover:text-rose-500 transition-colors p-1 rounded-lg cursor-pointer" title="Delete Notice">
-                            <span class="material-symbols-outlined text-[18px]">delete</span>
-                        </button>
-                    </form>
+                    <button type="button" @click="confirmDelete('{{ route('school.notices.destroy', $notice) }}', '{{ addslashes($notice->title) }}')" class="text-slate-400 hover:text-rose-500 transition-colors p-1 rounded-lg cursor-pointer" title="Delete Notice">
+                        <span class="material-symbols-outlined text-[18px]">delete</span>
+                    </button>
                 </div>
                 <h3 class="text-sm font-bold text-slate-800 leading-snug mb-2">{{ $notice->title }}</h3>
                 <p class="text-xs text-slate-600 leading-relaxed whitespace-pre-wrap mb-4">{{ $notice->content }}</p>
@@ -120,6 +126,33 @@
                     <button type="submit" class="px-5 py-2.5 bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold rounded-xl transition-all cursor-pointer shadow-sm">Publish Notice</button>
                 </div>
             </form>
+        </div>
+    </div>
+    <!-- Global Delete Form -->
+    <form id="global-delete-form" method="POST" :action="deleteUrl" class="hidden">
+        @csrf
+        @method('DELETE')
+    </form>
+
+    <!-- Custom Delete Confirmation Modal -->
+    <div x-show="deleteModal" x-cloak class="fixed inset-0 z-[110] flex items-center justify-center p-4" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
+        <div class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm" @click="deleteModal = false"></div>
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 relative z-10 border border-slate-200/60 text-center" @click.stop>
+            <div class="w-12 h-12 rounded-full bg-rose-50 border border-rose-100 flex items-center justify-center mx-auto mb-4 text-rose-600">
+                <span class="material-symbols-outlined text-[24px]">delete_forever</span>
+            </div>
+            <h3 class="text-sm font-bold text-slate-950 mb-1">Delete Notice</h3>
+            <p class="text-xs text-slate-500 leading-relaxed px-2">
+                Are you sure you want to delete <strong class="text-slate-800" x-text="deleteNoticeTitle"></strong>? This action is permanent.
+            </p>
+            <div class="mt-6 flex justify-center gap-3">
+                <button type="button" @click="deleteModal = false" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-800 transition-colors cursor-pointer">
+                    Cancel
+                </button>
+                <button type="button" @click="document.getElementById('global-delete-form').submit()" class="px-5 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl transition-all cursor-pointer shadow-md shadow-rose-600/10">
+                    Confirm Delete
+                </button>
+            </div>
         </div>
     </div>
 </div>

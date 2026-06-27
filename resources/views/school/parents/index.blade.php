@@ -151,7 +151,7 @@
                 </button>
             </div>
 
-            <form method="POST" action="{{ route('school.parents.store') }}" class="flex-1 flex flex-col min-h-0">
+            <form method="POST" action="{{ route('school.parents.store') }}" enctype="multipart/form-data" class="flex-1 flex flex-col min-h-0">
                 @csrf
                 <div class="p-6 space-y-5 overflow-y-auto flex-1 min-h-0">
 
@@ -262,6 +262,11 @@
                                     <option value="{{ $bg }}">{{ $bg }}</option>
                                     @endforeach
                                 </select>
+                            </div>
+                            <div class="col-span-2">
+                                <label class="block text-xs font-semibold text-slate-700 mb-1">Profile Image</label>
+                                <input type="file" name="children[{{ $i }}][profile_image]" accept="image/*"
+                                       class="w-full px-3 py-2 premium-input rounded-lg text-xs font-medium focus:outline-none file:mr-4 file:py-0.5 file:px-2 file:rounded-md file:border-0 file:text-[10px] file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100">
                             </div>
                         </div>
                     </div>

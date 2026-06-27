@@ -37,6 +37,13 @@ class ParentController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
+        if ($request->has('children') && $request->has('children_count')) {
+            $count = (int) $request->children_count;
+            $children = $request->input('children');
+            $filteredChildren = array_slice($children, 0, $count, true);
+            $request->merge(['children' => $filteredChildren]);
+        }
+
         $request->validate([
             'name'                          => 'required|string|max:255',
             'email'                         => 'required|email|unique:users,email',
@@ -53,6 +60,7 @@ class ParentController extends Controller
             'children.*.dob'                => 'nullable|date',
             'children.*.gender'             => 'nullable|in:male,female,other',
             'children.*.blood_group'        => 'nullable|string|max:5',
+            'children.*.profile_image'      => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
         DB::transaction(function () use ($request) {
@@ -88,15 +96,21 @@ class ParentController extends Controller
             ]);
 
             // Create each child
-            foreach ($request->children as $childData) {
+            foreach ($request->children as $i => $childData) {
                 $childPassword  = $this->generatePassword($childData['name']);
                 $childUsername  = $this->generateUsername($childData['name']);
 
+                $profileImagePath = null;
+                if ($request->hasFile("children.{$i}.profile_image")) {
+                    $profileImagePath = $request->file("children.{$i}.profile_image")->store('profiles', 'public');
+                }
+
                 $student = User::create([
-                    'name'      => $childData['name'],
-                    'email'     => $childUsername . '@student.' . $schoolId . '.auracampus.in',
-                    'password'  => Hash::make($childPassword),
-                    'school_id' => $schoolId,
+                    'name'          => $childData['name'],
+                    'email'         => $childUsername . '@student.' . $schoolId . '.auracampus.in',
+                    'password'      => Hash::make($childPassword),
+                    'school_id'     => $schoolId,
+                    'profile_image' => $profileImagePath,
                 ]);
                 $student->assignRole('student');
 

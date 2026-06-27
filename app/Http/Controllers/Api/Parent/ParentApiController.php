@@ -52,7 +52,7 @@ class ParentApiController extends Controller
                     'name'       => $child->name,
                     'classLabel' => $detail?->class ? 'Class ' . $detail->class->name . $detail->class->section : null,
                     'roll'       => $detail?->roll_number ? 'Roll No. ' . $detail->roll_number : null,
-                    'avatarUrl'  => $child->profile_image,
+                    'avatarUrl'  => $child->profile_image ? url('storage/' . $child->profile_image) : null,
                 ];
             })
         );
@@ -150,7 +150,7 @@ class ParentApiController extends Controller
                 'name'       => $student->name,
                 'classLabel' => $class ? 'Class ' . $class->name . $class->section : null,
                 'roll'       => $detail?->roll_number ? 'Roll No. ' . $detail->roll_number : null,
-                'avatarUrl'  => $student->profile_image,
+                'avatarUrl'  => $student->profile_image ? url('storage/' . $student->profile_image) : null,
             ],
             'stats' => [
                 'attendancePercentage'  => $attendancePct,
@@ -248,7 +248,7 @@ class ParentApiController extends Controller
                 'submittedDate' => $submission?->submitted_at?->format('M d'),
                 'grade'         => $submission?->grade,
                 'feedback'      => $submission?->feedback,
-                'senders'       => [$hw->teacher?->profile_image],
+                'senders'       => [$hw->teacher?->profile_image ? url('storage/' . $hw->teacher->profile_image) : null],
                 'teacher_name'  => $hw->teacher?->name,
                 'replyNote'     => $submission?->reply_note ?? '',
                 'files'         => $submission?->files ?? [],

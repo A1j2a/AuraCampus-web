@@ -3,7 +3,24 @@
 @section('title', 'AuraCampus | Subjects')
 
 @section('content')
-<div x-data="{ showAddModal: false, showAssignModal: false, editModal: false, editSubject: {}, selectedClassId: '', selectedSubjectIds: [] }">
+<div x-data="{ 
+    showAddModal: false, 
+    showAssignModal: false, 
+    editModal: false, 
+    editSubject: {}, 
+    selectedClassId: '', 
+    selectedSubjectIds: [],
+    deleteModal: false,
+    deleteUrl: '',
+    deleteItemName: '',
+    deleteType: '',
+    confirmDelete(url, name, type) {
+        this.deleteUrl = url;
+        this.deleteItemName = name;
+        this.deleteType = type;
+        this.deleteModal = true;
+    }
+}">
 
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
         <div>
@@ -90,13 +107,9 @@
                                             class="text-slate-400 hover:text-indigo-600 transition-colors cursor-pointer">
                                         <span class="material-symbols-outlined text-[16px]">edit</span>
                                     </button>
-                                    <form method="POST" action="{{ route('school.subjects.destroy', $subject) }}" onsubmit="return confirm('Remove subject?')" class="inline">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="text-slate-300 hover:text-rose-500 transition-colors cursor-pointer">
-                                            <span class="material-symbols-outlined text-[16px]">delete</span>
-                                        </button>
-                                    </form>
+                                    <button type="button" @click="confirmDelete('{{ route('school.subjects.destroy', $subject) }}', '{{ addslashes($subject->name) }} ({{ $subject->code }})', 'delete')" class="text-slate-300 hover:text-rose-500 transition-colors cursor-pointer">
+                                        <span class="material-symbols-outlined text-[16px]">delete</span>
+                                    </button>
                                 </div>
                             </td>
                         </tr>
@@ -141,13 +154,9 @@
                     @forelse($class->subjects as $subject)
                     <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-indigo-50 border border-indigo-100 text-indigo-700 text-[10px] rounded-lg font-medium">
                         {{ $subject->name }}
-                        <form method="POST" action="{{ route('school.classes.subjects.detach', [$class->id, $subject->id]) }}" onsubmit="return confirm('Remove {{ $subject->name }} from class {{ $class->name }}?')" class="inline ml-0.5">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="text-slate-400 hover:text-rose-600 inline-flex items-center align-middle focus:outline-none cursor-pointer">
-                                <span class="material-symbols-outlined text-[10px]">close</span>
-                            </button>
-                        </form>
+                        <button type="button" @click="confirmDelete('{{ route('school.classes.subjects.detach', [$class->id, $subject->id]) }}', '{{ addslashes($subject->name) }} from {{ addslashes($class->name) }}', 'detach')" class="text-slate-400 hover:text-rose-600 inline-flex items-center align-middle focus:outline-none cursor-pointer ml-0.5">
+                            <span class="material-symbols-outlined text-[10px]">close</span>
+                        </button>
                     </span>
                     @empty
                     <span class="text-[10px] text-slate-400 italic">No subjects assigned</span>
@@ -234,7 +243,14 @@
 
                     <!-- Subjects Checkboxes -->
                     <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-3">Select Subjects</label>
+                        <div class="flex items-center justify-between mb-3">
+                            <label class="block text-xs font-semibold text-slate-700">Select Subjects</label>
+                            @if($subjects->count())
+                            <button type="button" @click="if (selectedSubjectIds.length === {{ $subjects->count() }}) { selectedSubjectIds = []; } else { selectedSubjectIds = {{ json_encode($subjects->pluck('id')->map(fn($id) => (string)$id)->toArray()) }}; }" class="text-[10px] font-bold text-indigo-650 hover:text-indigo-800 transition-colors focus:outline-none cursor-pointer">
+                                <span x-text="selectedSubjectIds.length === {{ $subjects->count() }} ? 'Deselect All' : 'Select All'"></span>
+                            </button>
+                            @endif
+                        </div>
                         @if($subjects->count())
                         <div class="grid grid-cols-2 gap-2">
                             @foreach($subjects as $subject)
@@ -302,5 +318,31 @@
         </div>
     </div>
 
+    <!-- Global Delete Form -->
+    <form id="global-delete-form" method="POST" :action="deleteUrl" class="hidden">
+        @csrf
+        @method('DELETE')
+    </form>
+
+    <!-- Custom Delete Confirmation Modal -->
+    <div x-show="deleteModal" x-cloak class="fixed inset-0 z-[110] flex items-center justify-center p-4" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
+        <div class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm" @click="deleteModal = false"></div>
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 relative z-10 border border-slate-200/60 text-center" @click.stop>
+            <div class="w-12 h-12 rounded-full bg-rose-50 border border-rose-100 flex items-center justify-center mx-auto mb-4 text-rose-600">
+                <span class="material-symbols-outlined text-[24px]">delete_forever</span>
+            </div>
+            <h3 class="text-sm font-bold text-slate-950 mb-1" x-text="deleteType === 'detach' ? 'Remove Subject' : 'Delete Subject'"></h3>
+            <p class="text-xs text-slate-500 leading-relaxed px-2" x-text="deleteType === 'detach' ? 'Are you sure you want to remove ' + deleteItemName + '?' : 'Are you sure you want to delete ' + deleteItemName + '? This action is permanent and will delete the subject from the school database.'">
+            </p>
+            <div class="mt-6 flex justify-center gap-3">
+                <button type="button" @click="deleteModal = false" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-800 transition-colors cursor-pointer">
+                    Cancel
+                </button>
+                <button type="button" @click="document.getElementById('global-delete-form').submit()" class="px-5 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl transition-all cursor-pointer shadow-md shadow-rose-600/10">
+                    Confirm Delete
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
 @endsection

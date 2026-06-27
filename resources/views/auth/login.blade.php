@@ -7,13 +7,46 @@
         <div class="absolute top-10 right-20 w-80 h-80 rounded-full bg-gradient-to-br from-indigo-500/5 to-purple-600/5 blur-3xl animate-sphere-1 pointer-events-none"></div>
         <div class="absolute bottom-10 left-10 w-96 h-96 rounded-full bg-gradient-to-tr from-blue-600/5 to-indigo-700/5 blur-3xl animate-sphere-2 pointer-events-none"></div>
 
+        @php
+            $superEmail = $superAdmin ? $superAdmin->email : 'admin@auracampus.com';
+            $defaultSchoolEmail = 'principal@greenwood.com';
+            
+            if ($schoolAdmins->isNotEmpty()) {
+                $defaultSchoolAdmin = $schoolAdmins->first();
+                $defaultSchoolEmail = $defaultSchoolAdmin->email;
+            }
+            
+            $passwordsMap = [
+                'admin@auracampus.com' => 'password',
+                'principal@greenwood.com' => 'password',
+                'school@auracampus.com' => 'Aura@123',
+            ];
+            $jsonMap = json_encode($passwordsMap);
+            
+            $oldEmail = old('email');
+            $initialRole = $oldEmail && str_contains($oldEmail, 'admin@') ? 'super' : 'school';
+            $initialEmail = $oldEmail ?? $defaultSchoolEmail;
+        @endphp
         <!-- Master Card -->
         <div 
             x-data="{ 
-                role: 'super', 
+                role: '{{ $initialRole }}', 
                 showPass: false, 
-                email: 'admin@auracampus.com', 
-                password: 'password'
+                email: '{{ $initialEmail }}', 
+                password: '{{ $passwordsMap[$initialEmail] ?? "" }}',
+                superAdminEmail: '{{ $superEmail }}',
+                schoolAdminEmail: '{{ $defaultSchoolEmail }}',
+                passwordsMap: {{ $jsonMap }},
+                setRole(newRole) {
+                    this.role = newRole;
+                    let targetEmail = newRole === 'super' ? this.superAdminEmail : this.schoolAdminEmail;
+                    this.email = targetEmail;
+                    this.password = this.passwordsMap[targetEmail] || '';
+                },
+                updateEmail(val) {
+                    this.email = val;
+                    this.password = this.passwordsMap[val] || '';
+                }
             }" 
             class="w-full max-w-[420px] p-8 rounded-2xl bg-white border border-slate-200/60 shadow-[0_1px_3px_rgba(0,0,0,0.01),0_24px_48px_-16px_rgba(15,23,42,0.08)] relative z-10 text-slate-800"
         >
@@ -27,32 +60,54 @@
             </div>
 
             <!-- Role Selector Segmented Tabs -->
-            <div class="grid grid-cols-2 gap-1 p-1 bg-slate-50 border border-slate-100 rounded-xl mb-5">
+            <div class="grid grid-cols-2 gap-1 p-1.5 bg-slate-100/60 border border-slate-200/40 rounded-xl mb-4">
                 <button 
                     type="button" 
-                    @click="role = 'super'; email = 'admin@auracampus.com'; password = 'password'" 
-                    class="py-1.5 text-xs font-semibold rounded-lg transition-all text-center cursor-pointer select-none"
-                    :class="role === 'super' ? 'bg-white text-slate-900 shadow-sm border border-slate-200/20' : 'text-slate-500 hover:text-slate-800'"
+                    @click="setRole('super')" 
+                    class="py-2 text-xs font-bold rounded-lg transition-all duration-200 text-center cursor-pointer select-none flex items-center justify-center gap-1.5"
+                    :class="role === 'super' ? 'bg-white text-indigo-600 shadow-sm border border-slate-200/30' : 'text-slate-500 hover:text-slate-800'"
                 >
-                    Super Admin Presets
+                    <span class="material-symbols-outlined text-[15px]">shield</span>
+                    Super Admin
                 </button>
                 <button 
                     type="button" 
-                    @click="role = 'school'; email = 'principal@greenwood.com'; password = 'password'" 
-                    class="py-1.5 text-xs font-semibold rounded-lg transition-all text-center cursor-pointer select-none"
-                    :class="role === 'school' ? 'bg-white text-slate-900 shadow-sm border border-slate-200/20' : 'text-slate-500 hover:text-slate-800'"
+                    @click="setRole('school')" 
+                    class="py-2 text-xs font-bold rounded-lg transition-all duration-200 text-center cursor-pointer select-none flex items-center justify-center gap-1.5"
+                    :class="role === 'school' ? 'bg-white text-emerald-600 shadow-sm border border-slate-200/30' : 'text-slate-500 hover:text-slate-800'"
                 >
-                    School Admin Presets
+                    <span class="material-symbols-outlined text-[15px]">school</span>
+                    School Admin
                 </button>
             </div>
 
+            <!-- Campus Preset Selector (only shown for school role) -->
+            <div x-show="role === 'school'" class="mb-4">
+                <label class="block text-xs font-semibold text-slate-500 mb-1.5">Select Campus Preset</label>
+                <div class="relative">
+                    <select 
+                        @change="schoolAdminEmail = $event.target.value; updateEmail($event.target.value);"
+                        class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200/80 rounded-xl text-xs text-slate-800 font-semibold focus:outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-400/20 transition-all appearance-none cursor-pointer"
+                    >
+                        @foreach($schoolAdmins as $sa)
+                            <option value="{{ $sa->email }}" {{ ($oldEmail ?? $defaultSchoolEmail) === $sa->email ? 'selected' : '' }}>
+                                {{ $sa->school->name }} ({{ $sa->name }})
+                            </option>
+                        @endforeach
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3.5 text-slate-400">
+                        <span class="material-symbols-outlined text-[18px]">keyboard_arrow_down</span>
+                    </div>
+                </div>
+            </div>
+
             <!-- Dynamic Role Context Alert / Badge -->
-            <div class="mb-5 p-3 rounded-xl border text-xs flex gap-2 items-center transition-all duration-300"
-                 :class="role === 'super' ? 'bg-indigo-50/40 border-indigo-100/50 text-indigo-700' : 'bg-emerald-50/40 border-emerald-100/50 text-emerald-700'">
-                <span class="material-symbols-outlined text-[16px] shrink-0" :class="role === 'super' ? 'text-indigo-550' : 'text-emerald-550'">info</span>
+            <div class="mb-4 p-3.5 rounded-xl border text-[11px] leading-relaxed flex gap-2.5 items-start transition-all duration-300"
+                 :class="role === 'super' ? 'bg-indigo-50/50 border-indigo-100/50 text-indigo-700' : 'bg-emerald-50/50 border-emerald-100/50 text-emerald-700'">
+                <span class="material-symbols-outlined text-[16px] shrink-0 mt-0.5" :class="role === 'super' ? 'text-indigo-500' : 'text-emerald-550'">info</span>
                 <div>
-                    <span class="font-bold">Aura Presets: </span>
-                    <span x-text="role === 'super' ? 'Access global subscriptions and nodes control' : 'Manage Greenwich student databases & registers'"></span>
+                    <span class="font-bold uppercase tracking-wider text-[9px] block mb-0.5" :class="role === 'super' ? 'text-indigo-600' : 'text-emerald-600'">Active Preset Info</span>
+                    <span x-html="role === 'super' ? 'Alex Rivera (Super Admin). Password is <code class=\'bg-indigo-100 px-1 py-0.5 rounded font-mono font-bold text-[10px]\'>password</code>' : 'Greenwood Academy password is <code class=\'bg-emerald-100 px-1 py-0.5 rounded font-mono font-bold text-[10px]\'>password</code>. Aura International password is <code class=\'bg-emerald-100 px-1 py-0.5 rounded font-mono font-bold text-[10px]\'>Aura@123</code>.'"></span>
                 </div>
             </div>
 
@@ -139,13 +194,14 @@
                 </div>
 
                 <!-- Action Submit Button -->
-                <div class="pt-1">
+                <div class="pt-2">
                     <button 
                         type="submit" 
-                        class="w-full py-2 text-white font-medium rounded-lg transition-all duration-300 active:scale-[0.98] flex items-center justify-center gap-1.5 cursor-pointer text-sm shadow-[0_1px_2px_rgba(0,0,0,0.05)] border border-transparent"
-                        :class="role === 'super' ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-emerald-600 hover:bg-emerald-700'"
+                        class="w-full py-2.5 text-white font-bold rounded-xl transition-all duration-300 active:scale-[0.98] flex items-center justify-center gap-1.5 cursor-pointer text-xs shadow-md border-0"
+                        :class="role === 'super' ? 'bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 shadow-indigo-600/10' : 'bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 shadow-emerald-600/10'"
                     >
-                        <span>Sign in</span>
+                        <span class="material-symbols-outlined text-[16px]">login</span>
+                        <span>Sign in to Dashboard</span>
                     </button>
                 </div>
             </form>

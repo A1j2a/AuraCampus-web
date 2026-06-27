@@ -59,9 +59,19 @@ class StudentController extends Controller
             'gender'           => 'nullable|in:male,female,other',
             'blood_group'      => 'nullable|string|max:5',
             'class_id'         => 'required|exists:classes,id',
+            'profile_image'    => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        $student->update(['name' => $request->name]);
+        $updateData = ['name' => $request->name];
+
+        if ($request->hasFile('profile_image')) {
+            if ($student->profile_image) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($student->profile_image);
+            }
+            $updateData['profile_image'] = $request->file('profile_image')->store('profiles', 'public');
+        }
+
+        $student->update($updateData);
 
         $student->studentDetail()->updateOrCreate(
             ['user_id' => $student->id],

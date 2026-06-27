@@ -92,9 +92,13 @@
                     <tr class="hover:bg-slate-50/50 transition-all duration-150">
                         <td class="px-6 py-4">
                             <div class="flex items-center gap-3">
-                                <div class="w-9 h-9 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 text-xs font-bold shadow-sm shrink-0">
-                                    {{ strtoupper(substr($student->name, 0, 2)) }}
-                                </div>
+                                @if($student->profile_image)
+                                    <img src="{{ asset('storage/' . $student->profile_image) }}" class="w-9 h-9 rounded-xl object-cover border border-indigo-100 shadow-sm shrink-0" alt="{{ $student->name }}">
+                                @else
+                                    <div class="w-9 h-9 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 text-xs font-bold shadow-sm shrink-0">
+                                        {{ strtoupper(substr($student->name, 0, 2)) }}
+                                    </div>
+                                @endif
                                 <div>
                                     <p class="text-xs font-bold text-slate-800">{{ $student->name }}</p>
                                     <p class="text-[9px] text-slate-400 font-mono mt-0.5">
@@ -242,7 +246,7 @@
                     <span class="material-symbols-outlined text-[20px]">close</span>
                 </button>
             </div>
-            <form method="POST" :action="'/school/students/' + editStudent.id" class="flex-1 flex flex-col min-h-0">
+            <form method="POST" :action="'/school/students/' + editStudent.id" enctype="multipart/form-data" class="flex-1 flex flex-col min-h-0">
                 @csrf
                 @method('PATCH')
                 <div class="p-6 space-y-4 overflow-y-auto flex-1">
@@ -289,6 +293,11 @@
                                 <option value="{{ $class->id }}" :selected="editStudent.class_id == {{ $class->id }}">{{ $class->name }} - {{ $class->section }}</option>
                                 @endforeach
                             </select>
+                        </div>
+                        <div class="col-span-2">
+                            <label class="block text-xs font-semibold text-slate-700 mb-1.5">Profile Image (Leave blank to keep current)</label>
+                            <input type="file" name="profile_image" accept="image/*"
+                                   class="w-full px-4 py-2.5 premium-input rounded-xl text-xs font-medium focus:outline-none file:mr-4 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-[10px] file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100">
                         </div>
                     </div>
                 </div>
