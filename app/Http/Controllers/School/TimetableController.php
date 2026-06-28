@@ -282,6 +282,22 @@ class TimetableController extends Controller
             ->with('success', 'Period slot removed successfully.');
     }
 
+    public function bulkDestroy(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'slot_ids' => 'required|array',
+            'slot_ids.*' => 'required|exists:timetable_slots,id',
+        ]);
+
+        $schoolId = auth()->user()->school_id;
+
+        $deletedCount = TimetableSlot::where('school_id', $schoolId)
+            ->whereIn('id', $request->slot_ids)
+            ->delete();
+
+        return back()->with('success', $deletedCount . ' period allocations removed successfully.');
+    }
+
     public function updatePeriods(Request $request): RedirectResponse
     {
         $request->validate([

@@ -43,7 +43,9 @@ Route::middleware(['auth', 'verified', 'role:super-admin'])
         Route::get('/dashboard', [SuperAdminDashboardController::class, 'index'])->name('dashboard');
         Route::get('/schools', [SchoolController::class, 'index'])->name('schools');
         Route::post('/schools', [SchoolController::class, 'store'])->name('schools.store');
+        Route::patch('/schools/{school}', [SchoolController::class, 'update'])->name('schools.update');
         Route::get('/admins', [AdminController::class, 'index'])->name('admins');
+        Route::patch('/admins/{admin}', [AdminController::class, 'update'])->name('admins.update');
         Route::get('/subscriptions', [SubscriptionController::class, 'index'])->name('subscriptions');
         Route::post('/subscriptions/plan', [SubscriptionController::class, 'storePlan'])->name('subscriptions.plan.store');
         Route::post('/subscriptions/school', [SubscriptionController::class, 'storeSchoolSubscription'])->name('subscriptions.school.store');
@@ -119,6 +121,7 @@ Route::middleware(['auth', 'verified', 'role:school-admin'])
         // Timetable
         Route::get('/timetable', [TimetableController::class, 'index'])->name('timetable.index');
         Route::post('/timetable', [TimetableController::class, 'store'])->name('timetable.store');
+        Route::delete('/timetable/bulk-delete', [TimetableController::class, 'bulkDestroy'])->name('timetable.bulk-destroy');
         Route::delete('/timetable/{slot}', [TimetableController::class, 'destroy'])->name('timetable.destroy');
         Route::post('/timetable/periods', [TimetableController::class, 'updatePeriods'])->name('timetable.periods.update');
 

@@ -50,10 +50,21 @@ class SchoolDashboardController extends Controller
             ->where('status', 'pending')
             ->count();
 
+        // Calculate dynamic greeting based on school timezone
+        $timezone = auth()->user()->school->settings['timezone'] ?? config('app.timezone', 'UTC');
+        $hour = now($timezone)->hour;
+        if ($hour < 12) {
+            $greeting = 'Good Morning';
+        } elseif ($hour < 17) {
+            $greeting = 'Good Afternoon';
+        } else {
+            $greeting = 'Good Evening';
+        }
+
         return view('school.dashboard.index', compact(
             'totalStudents', 'totalTeachers', 'totalClasses',
             'totalSubjects', 'totalParents', 'notices', 'classes',
-            'leaveRequests', 'pendingLeavesCount'
+            'leaveRequests', 'pendingLeavesCount', 'greeting'
         ));
     }
 }

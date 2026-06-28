@@ -46,10 +46,14 @@
         
         <div :class="sidebarCollapsed ? 'flex-col gap-4 items-center justify-center' : 'flex-row justify-between gap-3'" class="mb-8 flex items-center px-2">
             <!-- logo and text -->
-            <div x-show="!sidebarCollapsed" class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-lg bg-surface-tint flex items-center justify-center text-white shrink-0 shadow-sm">
-                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">school</span>
-                </div>
+            <div x-show="!sidebarCollapsed" class="flex items-center gap-3 min-w-0 flex-1">
+                @if(auth()->check() && auth()->user()->school && auth()->user()->school->logo_path)
+                    <img src="{{ asset('storage/' . auth()->user()->school->logo_path) }}" class="w-10 h-10 rounded-lg object-cover shadow-sm shrink-0" alt="School Logo">
+                @else
+                    <div class="w-10 h-10 rounded-lg bg-surface-tint flex items-center justify-center text-white shrink-0 shadow-sm">
+                        <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">school</span>
+                    </div>
+                @endif
                 <div class="min-w-0 flex-1">
                     <h1 class="text-base font-bold text-white leading-tight tracking-tight font-display-lg whitespace-normal break-words">
                         {{ auth()->check() && auth()->user()->school ? auth()->user()->school->name : 'Green Valley Academy' }}
@@ -59,12 +63,18 @@
             </div>
             
             <!-- logo only when collapsed on desktop -->
-            <div x-show="sidebarCollapsed" class="hidden lg:flex w-10 h-10 rounded-lg bg-surface-tint items-center justify-center text-white shrink-0 shadow-sm">
-                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">school</span>
+            <div x-show="sidebarCollapsed" class="hidden lg:flex shrink-0">
+                @if(auth()->check() && auth()->user()->school && auth()->user()->school->logo_path)
+                    <img src="{{ asset('storage/' . auth()->user()->school->logo_path) }}" class="w-10 h-10 rounded-lg object-cover shadow-sm" alt="School Logo">
+                @else
+                    <div class="w-10 h-10 rounded-lg bg-surface-tint flex items-center justify-center text-white shadow-sm">
+                        <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">school</span>
+                    </div>
+                @endif
             </div>
 
             <!-- Toggle buttons -->
-            <div :class="sidebarCollapsed ? 'flex-col items-center' : 'flex-row items-center'" class="flex gap-1">
+            <div :class="sidebarCollapsed ? 'flex-col items-center' : 'flex-row items-center'" class="flex gap-1 shrink-0">
                 <button @click="sidebarOpen = false" class="lg:hidden text-slate-400 hover:text-white cursor-pointer flex items-center justify-center" title="Close Sidebar">
                     <span class="material-symbols-outlined text-[20px]">close</span>
                 </button>
@@ -375,7 +385,13 @@
                             </p>
                             <p class="text-[11px] text-on-surface-variant mt-1 font-medium">School Admin</p>
                         </div>
-                        <img alt="Principal Avatar" class="w-10 h-10 rounded-full border-2 border-surface-tint/20 object-cover shrink-0" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDGBl_DLmJu0323YClO_48-Ugzvmf191wh6hGvdlSlRmh5puOdlzEl0sjgKFuu2dUFQmrwfGKmsolr22TCCV5R4urs6yvlr_8-Wi2OHjZPGHYHXJHfsvi7AH8bJ8x9zkBt4WpAaO-h5nNFeuHrMT_ThdQbVTWStv-tqGq588UB1XgU0LnTibxyJVorJbAPYvgCcL0ET9Dlwl9SnYGvOvuc4Qh8tfqeZg-nGn-AvAVKXSt1O7qJj1yYZnlJXJgJr0YAzvEeLI5d6A15_"/>
+                        @if(auth()->check() && auth()->user()->profile_image)
+                            <img alt="{{ auth()->user()->name }}" class="w-10 h-10 rounded-full border-2 border-surface-tint/20 object-cover shrink-0" src="{{ asset('storage/' . auth()->user()->profile_image) }}"/>
+                        @else
+                            <div class="w-10 h-10 rounded-full bg-violet-50 border-2 border-surface-tint/20 flex items-center justify-center text-violet-600 font-bold text-xs shrink-0">
+                                {{ auth()->check() ? strtoupper(substr(auth()->user()->name, 0, 2)) : 'PR' }}
+                            </div>
+                        @endif
                     </div>
 
                 </div>

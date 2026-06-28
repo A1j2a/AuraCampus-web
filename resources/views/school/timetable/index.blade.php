@@ -44,11 +44,11 @@
             let parts = defaultStart.split(':');
             let hours = parseInt(parts[0]);
             let minutes = parseInt(parts[1]) + 45;
-            if (minutes &gt;= 60) {
+            if (minutes >= 60) {
                 hours += Math.floor(minutes / 60);
                 minutes = minutes % 60;
             }
-            if (hours &gt;= 24) hours = 0;
+            if (hours >= 24) hours = 0;
             defaultEnd = String(hours).padStart(2, '0') + ':' + String(minutes).padStart(2, '0');
         }
         this.periodsList.push({
@@ -59,7 +59,7 @@
         });
     },
     removePeriod(index) {
-        if (this.periodsList.length &gt; 1) {
+        if (this.periodsList.length > 1) {
             this.periodsList.splice(index, 1);
             this.periodsList.forEach(function(p, idx) {
                 p.id = idx + 1;
@@ -74,7 +74,10 @@
         this.deleteUrl = url;
         this.deleteItemName = name;
         this.deleteModal = true;
-    }
+    },
+    selectedSlots: [],
+    bulkDeleteModal: false,
+    allSlotIds: {{ json_encode($slots->pluck('id')->toArray()) }}
 }" x-init="$watch('selectedSubjectId', function(val) {
     if (val) {
         let ft = teachers.filter(function(t) {
@@ -158,6 +161,28 @@
     </div>
     @endif
 
+    <!-- Bulk Actions Alert -->
+    <div x-show="selectedSlots.length > 0" x-cloak class="mb-6 p-4 bg-rose-50 border border-rose-200 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all duration-300">
+        <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-rose-600 text-[18px]">checklist</span>
+            <span class="text-xs font-semibold text-rose-700">
+                <span x-text="selectedSlots.length"></span> period allocation(s) selected for deletion.
+            </span>
+        </div>
+        <div class="flex items-center gap-3">
+            <button type="button" @click="selectedSlots = [...allSlotIds]" x-show="selectedSlots.length < allSlotIds.length" class="px-3 py-1.5 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 text-[10px] font-bold rounded-lg cursor-pointer transition-all">
+                Select All
+            </button>
+            <button type="button" @click="selectedSlots = []" class="text-xs font-semibold text-slate-500 hover:text-slate-700 cursor-pointer">
+                Clear Selection
+            </button>
+            <button type="button" @click="bulkDeleteModal = true" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl cursor-pointer shadow-sm shadow-rose-600/10 flex items-center gap-1.5 transition-all">
+                <span class="material-symbols-outlined text-[14px]">delete</span>
+                Delete Selected
+            </button>
+        </div>
+    </div>
+
     <!-- Timetable Grid -->
     <div class="premium-card rounded-2xl overflow-hidden bg-white border border-slate-200/60 shadow-sm">
         <div class="overflow-x-auto">
@@ -186,8 +211,13 @@
                                 <button type="button" @click="confirmDelete('{{ route('school.timetable.destroy', $slot) }}', '{{ $slot->subject?->name }} ({{ $slot->teacher?->name }})')" class="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity text-slate-300 hover:text-rose-500 cursor-pointer">
                                     <span class="material-symbols-outlined text-[14px]">close</span>
                                 </button>
-                                <div class="font-bold text-slate-800 text-[11px] leading-tight mb-0.5">{{ $slot->subject?->name }}</div>
-                                <div class="text-[9px] text-slate-400 font-mono uppercase mb-2">{{ $slot->subject?->code }}</div>
+                                <div class="flex items-start gap-1.5 mb-2 pr-4">
+                                    <input type="checkbox" value="{{ $slot->id }}" x-model="selectedSlots" class="rounded border-slate-300 text-violet-600 focus:ring-violet-500 h-3.5 w-3.5 cursor-pointer mt-0.5 shrink-0">
+                                    <div class="min-w-0">
+                                        <div class="font-bold text-slate-800 text-[11px] leading-tight truncate" title="{{ $slot->subject?->name }}">{{ $slot->subject?->name }}</div>
+                                        <div class="text-[9px] text-slate-400 font-mono uppercase mt-0.5">{{ $slot->subject?->code }}</div>
+                                    </div>
+                                </div>
                                 <div class="flex items-center gap-1 text-[9px] text-slate-500 font-medium">
                                     <span class="material-symbols-outlined text-[11px]">person</span>
                                     <span class="truncate max-w-[110px]">{{ $slot->teacher?->name }}</span>
@@ -559,6 +589,15 @@
         @method('DELETE')
     </form>
 
+    <!-- Bulk Delete Form -->
+    <form id="bulk-delete-form" method="POST" action="{{ route('school.timetable.bulk-destroy') }}" class="hidden">
+        @csrf
+        @method('DELETE')
+        <template x-for="id in selectedSlots" :key="id">
+            <input type="hidden" name="slot_ids[]" :value="id">
+        </template>
+    </form>
+
     <!-- Custom Delete Confirmation Modal -->
     <div x-show="deleteModal" x-cloak class="fixed inset-0 z-[110] flex items-center justify-center p-4" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
         <div class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm" @click="deleteModal = false"></div>
@@ -575,6 +614,28 @@
                     Cancel
                 </button>
                 <button type="button" @click="document.getElementById('global-delete-form').submit()" class="px-5 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl transition-all cursor-pointer shadow-md shadow-rose-600/10">
+                    Confirm Delete
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Bulk Delete Confirmation Modal -->
+    <div x-show="bulkDeleteModal" x-cloak class="fixed inset-0 z-[110] flex items-center justify-center p-4" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
+        <div class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm" @click="bulkDeleteModal = false"></div>
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 relative z-10 border border-slate-200/60 text-center" @click.stop>
+            <div class="w-12 h-12 rounded-full bg-rose-50 border border-rose-100 flex items-center justify-center mx-auto mb-4 text-rose-600">
+                <span class="material-symbols-outlined text-[24px]">delete_forever</span>
+            </div>
+            <h3 class="text-sm font-bold text-slate-950 mb-1">Delete Selected Allocations</h3>
+            <p class="text-xs text-slate-500 leading-relaxed px-2">
+                Are you sure you want to delete <strong class="text-slate-800" x-text="selectedSlots.length"></strong> selected period allocations? This action cannot be undone.
+            </p>
+            <div class="mt-6 flex justify-center gap-3">
+                <button type="button" @click="bulkDeleteModal = false" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-800 transition-colors cursor-pointer">
+                    Cancel
+                </button>
+                <button type="button" @click="document.getElementById('bulk-delete-form').submit()" class="px-5 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl transition-all cursor-pointer shadow-md shadow-rose-600/10">
                     Confirm Delete
                 </button>
             </div>

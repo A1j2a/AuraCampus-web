@@ -41,11 +41,36 @@
                 <div class="absolute -right-20 -top-20 w-48 h-48 bg-violet-500/5 rounded-full blur-2xl"></div>
 
                 <h3 class="text-sm font-bold text-slate-800 border-b border-slate-100 pb-3 mb-6">Profile Details</h3>
-                <form method="POST" action="{{ route('school.settings.update') }}">
+                <form method="POST" action="{{ route('school.settings.update') }}" enctype="multipart/form-data">
                     @csrf
                     @method('PATCH')
                     
                     <div class="space-y-4">
+                        <!-- School Logo -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1.5">School Logo</label>
+                            <div class="flex items-center gap-4">
+                                @if($school->logo_path)
+                                    <div class="w-16 h-16 rounded-xl overflow-hidden border border-slate-200 bg-slate-50 shrink-0 flex items-center justify-center">
+                                        <img src="{{ asset('storage/' . $school->logo_path) }}" class="w-full h-full object-cover" alt="Current Logo">
+                                    </div>
+                                @else
+                                    <div class="w-16 h-16 rounded-xl border border-dashed border-slate-200 bg-slate-50 text-slate-400 shrink-0 flex items-center justify-center">
+                                        <span class="material-symbols-outlined text-[24px]">school</span>
+                                    </div>
+                                @endif
+                                <div class="flex-grow">
+                                    <input type="file" name="logo" id="logo" accept="image/*" class="hidden" onchange="document.getElementById('logo-file-name').innerText = this.files[0] ? this.files[0].name : ''">
+                                    <label for="logo" class="px-4 py-2.5 border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold rounded-xl cursor-pointer inline-flex items-center gap-2 transition-all">
+                                        <span class="material-symbols-outlined text-[16px]">upload</span>
+                                        Choose New Logo
+                                    </label>
+                                    <span id="logo-file-name" class="ml-2 text-[10px] text-slate-500 font-medium"></span>
+                                    <p class="text-[10px] text-slate-400 mt-1">Accepts PNG, JPG, JPEG, WEBP (Max: 2MB). Ideal aspect ratio: 1:1.</p>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- School Name -->
                         <div>
                             <label class="block text-xs font-semibold text-slate-700 mb-1.5">School Name</label>

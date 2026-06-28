@@ -99,5 +99,45 @@ class SchoolController extends Controller
         return redirect()->route('superadmin.schools')
                          ->with('success', 'Campus "' . $school->name . '" provisioned successfully!');
     }
+
+    /**
+     * Update school campus details.
+     */
+    public function update(Request $request, School $school): RedirectResponse
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'nullable|email|max:255',
+            'phone' => 'nullable|string|max:20',
+            'address' => 'nullable|string|max:500',
+            'status' => 'required|in:active,inactive,pending',
+            'font_family' => 'nullable|string|max:100',
+            'school_logo' => 'nullable|image|mimes:jpg,jpeg,png,svg,webp|max:2048',
+        ]);
+
+        $updateData = [
+            'name' => $request->name,
+            'slug' => Str::slug($request->name),
+            'email' => $request->email,
+            'phone' => $request->phone,
+            'address' => $request->address,
+            'status' => $request->status,
+            'font_family' => $request->font_family,
+        ];
+
+        if ($request->hasFile('school_logo')) {
+            // Delete old logo
+            if ($school->logo_path && Storage::disk('public')->exists($school->logo_path)) {
+                Storage::disk('public')->delete($school->logo_path);
+            }
+            $logoPath = $request->file('school_logo')->store('school-logos', 'public');
+            $updateData['logo_path'] = $logoPath;
+        }
+
+        $school->update($updateData);
+
+        return redirect()->route('superadmin.schools')
+                         ->with('success', 'Campus "' . $school->name . '" updated successfully!');
+    }
 }
 

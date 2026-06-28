@@ -6,7 +6,7 @@
     <!-- Welcome Banner -->
     <section class="mb-10 relative overflow-hidden bg-gradient-to-r from-[#5f40dc] to-[#8062f6] rounded-2xl p-8 text-white">
         <div class="relative z-10">
-            <h2 class="text-2xl lg:text-3xl font-bold mb-2">Good Morning, Principal.</h2>
+            <h2 class="text-2xl lg:text-3xl font-bold mb-2">{{ $greeting }}, {{ auth()->check() ? auth()->user()->name : 'Principal' }}.</h2>
             <p class="text-sm lg:text-base text-white/80">Here is your school overview for today. You have {{ $pendingLeavesCount }} pending leave request{{ $pendingLeavesCount !== 1 ? 's' : '' }}.</p>
         </div>
         <!-- Decorative background shapes -->

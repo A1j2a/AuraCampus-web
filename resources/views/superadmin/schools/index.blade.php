@@ -3,13 +3,58 @@
 @section('title', 'AuraCampus | Schools Management')
 
 @section('content')
-<div x-data="{ showModal: false }">
+<div x-data="{
+    showModal: false,
+    showEditModal: false,
+    logoPreview: null,
+    profilePreview: null,
+    editSchool: {
+        id: '',
+        name: '',
+        email: '',
+        phone: '',
+        address: '',
+        status: 'active',
+        font_family: '',
+        logo_url: ''
+    },
+    openEditModal(school) {
+        this.editSchool = {
+            id: school.id,
+            name: school.name || '',
+            email: school.email || '',
+            phone: school.phone || '',
+            address: school.address || '',
+            status: school.status || 'active',
+            font_family: school.font_family || '',
+            logo_url: school.logo_path ? '/storage/' + school.logo_path : null
+        };
+        this.logoPreview = this.editSchool.logo_url;
+        this.showEditModal = true;
+    },
+    handleLogoUpload(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => this.logoPreview = e.target.result;
+            reader.readAsDataURL(file);
+        }
+    },
+    handleProfileUpload(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => this.profilePreview = e.target.result;
+            reader.readAsDataURL(file);
+        }
+    }
+}">
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
         <div>
             <h2 class="text-xl font-bold text-slate-900 tracking-tight">Schools Management</h2>
             <p class="text-xs text-slate-500 mt-1">Configure and deploy new institution campuses onto the AuraCampus network.</p>
         </div>
-        <button @click="showModal = true" class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl transition-all cursor-pointer shadow-sm flex items-center gap-2">
+        <button @click="logoPreview = null; profilePreview = null; showModal = true" class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl transition-all cursor-pointer shadow-sm flex items-center gap-2">
             <span class="material-symbols-outlined text-[16px]">add</span>
             Provision Campus
         </button>
@@ -70,6 +115,7 @@
                         <th class="px-6 py-4 font-mono text-[9px] text-slate-400 uppercase tracking-wider">Users</th>
                         <th class="px-6 py-4 font-mono text-[9px] text-slate-400 uppercase tracking-wider">Status</th>
                         <th class="px-6 py-4 font-mono text-[9px] text-slate-400 uppercase tracking-wider">Provisioned</th>
+                        <th class="px-6 py-4 font-mono text-[9px] text-slate-400 uppercase tracking-wider text-right">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
@@ -125,10 +171,16 @@
                         <td class="px-6 py-4">
                             <span class="text-[10px] text-slate-400 font-mono">{{ $school->created_at->format('d M Y') }}</span>
                         </td>
+                        <td class="px-6 py-4 text-right">
+                            <button @click="openEditModal({{ json_encode($school) }})" class="px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 hover:text-indigo-700 text-[10px] font-bold rounded-lg cursor-pointer transition-all flex items-center gap-1 ml-auto">
+                                <span class="material-symbols-outlined text-[14px]">edit</span>
+                                Edit
+                            </button>
+                        </td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="6" class="px-6 py-12 text-center">
+                        <td colspan="7" class="px-6 py-12 text-center">
                             <span class="material-symbols-outlined text-indigo-600 text-4xl mb-3 animate-float-slow">database</span>
                             <h4 class="text-sm font-bold text-slate-800 mb-1">No Campuses Provisioned</h4>
                             <p class="text-xs text-slate-500">Click "Provision Campus" to onboard a school.</p>
@@ -275,6 +327,94 @@
                 <div class="mt-6 flex justify-end gap-3">
                     <button type="button" @click="showModal = false" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-800 transition-colors cursor-pointer">Cancel</button>
                     <button type="submit" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl transition-all cursor-pointer shadow-sm">Provision Campus</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Campus Modal -->
+    <div x-show="showEditModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center p-4" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
+        <div class="fixed inset-0 bg-slate-900/30 backdrop-blur-sm" @click="showEditModal = false"></div>
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6 relative z-10 border border-slate-200/60 max-h-[90vh] overflow-y-auto" @click.stop>
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <h3 class="text-base font-bold text-slate-900">Edit Campus Details</h3>
+                    <p class="text-[10px] text-slate-400 mt-1">Update general configurations and status for this campus.</p>
+                </div>
+                <button @click="showEditModal = false" class="text-slate-400 hover:text-slate-600 transition-colors cursor-pointer">
+                    <span class="material-symbols-outlined text-[20px]">close</span>
+                </button>
+            </div>
+            <form method="POST" :action="'/super-admin/schools/' + editSchool.id" enctype="multipart/form-data">
+                @csrf
+                @method('PATCH')
+                <div class="space-y-4">
+                    <div class="p-3 bg-indigo-50/50 rounded-xl border border-indigo-100">
+                        <h4 class="text-[10px] font-mono font-bold text-indigo-600 uppercase tracking-wider mb-3">Campus Details</h4>
+                        <div class="space-y-3">
+                            <!-- School Logo Upload -->
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1.5">School Logo</label>
+                                <div class="flex items-center gap-3">
+                                    <div class="w-14 h-14 rounded-xl border-2 border-dashed border-slate-200 flex items-center justify-center overflow-hidden bg-slate-50 shrink-0 transition-all hover:border-indigo-300">
+                                        <template x-if="logoPreview">
+                                            <img :src="logoPreview" alt="Logo Preview" class="w-full h-full object-cover rounded-xl">
+                                        </template>
+                                        <template x-if="!logoPreview">
+                                            <span class="material-symbols-outlined text-slate-300 text-[24px]">school</span>
+                                        </template>
+                                    </div>
+                                    <div class="flex-1">
+                                        <input type="file" name="school_logo" accept="image/*" @change="handleLogoUpload($event)"
+                                               class="w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-600 hover:file:bg-indigo-100 file:cursor-pointer cursor-pointer">
+                                        <p class="text-[9px] text-slate-400 mt-1">JPG, PNG, SVG or WebP. Max 2MB.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1.5">School Name</label>
+                                <input type="text" name="name" x-model="editSchool.name" required
+                                       class="w-full px-4 py-2.5 premium-input rounded-xl text-xs font-medium focus:outline-none focus:premium-input-focus placeholder-slate-300">
+                            </div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 mb-1.5">Email</label>
+                                    <input type="email" name="email" x-model="editSchool.email"
+                                           class="w-full px-4 py-2.5 premium-input rounded-xl text-xs font-medium focus:outline-none focus:premium-input-focus placeholder-slate-300">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 mb-1.5">Phone</label>
+                                    <input type="text" name="phone" x-model="editSchool.phone"
+                                           class="w-full px-4 py-2.5 premium-input rounded-xl text-xs font-medium focus:outline-none focus:premium-input-focus placeholder-slate-300">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1.5">Address</label>
+                                <input type="text" name="address" x-model="editSchool.address"
+                                       class="w-full px-4 py-2.5 premium-input rounded-xl text-xs font-medium focus:outline-none focus:premium-input-focus placeholder-slate-300">
+                            </div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 mb-1.5">Status</label>
+                                    <select name="status" x-model="editSchool.status" required
+                                            class="w-full px-4 py-2.5 premium-input rounded-xl text-xs font-medium focus:outline-none focus:premium-input-focus appearance-none cursor-pointer bg-white">
+                                        <option value="active">Active</option>
+                                        <option value="inactive">Inactive</option>
+                                        <option value="pending">Pending</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 mb-1.5">Font Family</label>
+                                    <input type="text" name="font_family" x-model="editSchool.font_family" placeholder="e.g. Inter"
+                                           class="w-full px-4 py-2.5 premium-input rounded-xl text-xs font-medium focus:outline-none focus:premium-input-focus placeholder-slate-300">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-6 flex justify-end gap-3">
+                    <button type="button" @click="showEditModal = false" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-800 transition-colors cursor-pointer">Cancel</button>
+                    <button type="submit" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl transition-all cursor-pointer shadow-sm">Update Campus</button>
                 </div>
             </form>
         </div>
