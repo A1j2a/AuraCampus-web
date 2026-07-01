@@ -28,31 +28,4 @@ class SchoolEvent extends Model
         'event_date' => 'date',
     ];
 
-    protected static function booted()
-    {
-        static::created(function ($event) {
-            try {
-                $users = \App\Models\User::where('school_id', $event->school_id)
-                    ->whereNotNull('fcm_token')
-                    ->whereIn('user_type', [3, 4]) // 3 = Student, 4 = Parent
-                    ->get();
-
-                $firebaseService = app(\App\Services\FirebaseService::class);
-
-                foreach ($users as $user) {
-                    $firebaseService->sendPush(
-                        $user->fcm_token,
-                        "New Event: " . $event->title,
-                        $event->event_time ? $event->event_time . " - " . $event->description : $event->description,
-                        [
-                            'id' => (string) $event->id,
-                            'type' => 'event'
-                        ]
-                    );
-                }
-            } catch (\Exception $e) {
-                \Illuminate\Support\Facades\Log::error("FCM event push failed: " . $e->getMessage());
-            }
-        });
-    }
 }

@@ -74,11 +74,42 @@ class AuthController extends Controller
             $displayRole = 'Parent';
         }
 
+        $teacherStats = null;
+        if ($role === 'teacher') {
+            $classIds = \Illuminate\Support\Facades\DB::table('class_subject')
+                ->where('teacher_id', $user->id)
+                ->pluck('class_id')
+                ->unique();
+            $studentsCount = \App\Models\StudentDetail::whereIn('class_id', $classIds)->count();
+            
+            // Dynamic pass rate
+            $examSchedules = \App\Models\ExamSchedule::whereIn('class_id', $classIds)->get();
+            $totalMarksCount = 0;
+            $passedMarksCount = 0;
+            foreach ($examSchedules as $schedule) {
+                $passingMarks = $schedule->passing_marks;
+                $marks = \App\Models\Mark::where('exam_schedule_id', $schedule->id)->get();
+                foreach ($marks as $mark) {
+                    $totalMarksCount++;
+                    if ($mark->marks_obtained >= $passingMarks) {
+                        $passedMarksCount++;
+                    }
+                }
+            }
+            $passRatePercent = $totalMarksCount > 0 ? round(($passedMarksCount / $totalMarksCount) * 100) : 98;
+            
+            $teacherStats = [
+                'students_count' => $studentsCount,
+                'pass_rate' => $passRatePercent . '%',
+            ];
+        }
+
         $deviceName = $request->device_info ?? 'mobile_app';
         $token = $user->createToken($deviceName)->plainTextToken;
 
         return $this->successResponse([
             '_id' => "usr_" . $user->id,
+            'name' => $user->name,
             'user_name' => $user->user_name,
             'first_name' => $user->first_name,
             'last_name' => $user->last_name,
@@ -92,6 +123,7 @@ class AuthController extends Controller
             'device_type' => $user->device_type,
             'device_os_version' => $user->device_os_version,
             'token' => $token,
+            'teacher_stats' => $teacherStats,
         ], 'Login successful.');
     }
 
@@ -123,8 +155,39 @@ class AuthController extends Controller
             $displayRole = 'Parent';
         }
 
+        $teacherStats = null;
+        if ($role === 'teacher') {
+            $classIds = \Illuminate\Support\Facades\DB::table('class_subject')
+                ->where('teacher_id', $user->id)
+                ->pluck('class_id')
+                ->unique();
+            $studentsCount = \App\Models\StudentDetail::whereIn('class_id', $classIds)->count();
+            
+            // Dynamic pass rate
+            $examSchedules = \App\Models\ExamSchedule::whereIn('class_id', $classIds)->get();
+            $totalMarksCount = 0;
+            $passedMarksCount = 0;
+            foreach ($examSchedules as $schedule) {
+                $passingMarks = $schedule->passing_marks;
+                $marks = \App\Models\Mark::where('exam_schedule_id', $schedule->id)->get();
+                foreach ($marks as $mark) {
+                    $totalMarksCount++;
+                    if ($mark->marks_obtained >= $passingMarks) {
+                        $passedMarksCount++;
+                    }
+                }
+            }
+            $passRatePercent = $totalMarksCount > 0 ? round(($passedMarksCount / $totalMarksCount) * 100) : 98;
+            
+            $teacherStats = [
+                'students_count' => $studentsCount,
+                'pass_rate' => $passRatePercent . '%',
+            ];
+        }
+
         return $this->successResponse([
             '_id' => "usr_" . $user->id,
+            'name' => $user->name,
             'user_name' => $user->user_name,
             'first_name' => $user->first_name,
             'last_name' => $user->last_name,
@@ -137,6 +200,7 @@ class AuthController extends Controller
                 'name' => $user->school->name,
                 'slug' => $user->school->slug,
             ] : null,
+            'teacher_stats' => $teacherStats,
         ]);
     }
 

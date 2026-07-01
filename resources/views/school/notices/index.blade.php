@@ -8,6 +8,7 @@
     deleteModal: false,
     deleteUrl: '',
     deleteNoticeTitle: '',
+    category: 'general',
     confirmDelete(url, title) {
         this.deleteUrl = url;
         this.deleteNoticeTitle = title;
@@ -22,7 +23,7 @@
         </div>
         <button @click="showModal = true" class="px-4 py-2.5 bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold rounded-xl transition-all cursor-pointer shadow-sm flex items-center gap-2">
             <span class="material-symbols-outlined text-[16px]">campaign</span>
-            Publish Notice
+            Publish Notice / Event
         </button>
     </div>
 
@@ -62,7 +63,7 @@
                     </button>
                 </div>
                 <h3 class="text-sm font-bold text-slate-800 leading-snug mb-2">{{ $notice->title }}</h3>
-                <p class="text-xs text-slate-600 leading-relaxed whitespace-pre-wrap mb-4">{{ $notice->content }}</p>
+                <p class="text-xs text-slate-650 leading-relaxed whitespace-pre-wrap mb-4">{{ $notice->content }}</p>
             </div>
             <div class="flex items-center gap-2 mt-2 pt-3 border-t border-slate-50">
                 <span class="material-symbols-outlined text-[14px] text-slate-400">schedule</span>
@@ -83,31 +84,53 @@
         <div class="fixed inset-0 bg-slate-900/30 backdrop-blur-sm" @click="showModal = false"></div>
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6 relative z-10 border border-slate-200/60 max-h-[90vh] overflow-y-auto" @click.stop>
             <div class="flex justify-between items-center mb-6">
-                <h3 class="text-base font-bold text-slate-900">Publish New Notice</h3>
+                <h3 class="text-base font-bold text-slate-900">Publish New Notice / Event</h3>
                 <button @click="showModal = false" class="text-slate-400 hover:text-slate-600 transition-colors cursor-pointer">
                     <span class="material-symbols-outlined text-[20px]">close</span>
                 </button>
             </div>
-            <form method="POST" action="{{ route('school.notices.store') }}">
+            <form method="POST" action="{{ route('school.notices.store') }}" enctype="multipart/form-data">
                 @csrf
                 <div class="space-y-4">
                     <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1.5">Notice Title</label>
-                        <input type="text" name="title" placeholder="e.g. Mid-Term Report Card Release" required
+                        <label class="block text-xs font-semibold text-slate-700 mb-1.5">Title</label>
+                        <input type="text" name="title" placeholder="e.g. Mid-Term Report Card Release / Sports Day" required
                                class="w-full px-4 py-2.5 premium-input rounded-xl text-xs font-medium focus:outline-none focus:premium-input-focus-violet placeholder-slate-300">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-700 mb-1.5">Category</label>
-                        <select name="type" required class="w-full px-4 py-2.5 premium-input rounded-xl text-xs font-medium focus:outline-none focus:premium-input-focus-violet appearance-none cursor-pointer bg-white">
+                        <select name="type" x-model="category" required class="w-full px-4 py-2.5 premium-input rounded-xl text-xs font-medium focus:outline-none focus:premium-input-focus-violet appearance-none cursor-pointer bg-white">
                             <option value="general">General announcement</option>
                             <option value="academic">Academic / Exam related</option>
-                            <option value="event">School Event / Activities</option>
+                            <option value="event">Event</option>
                             <option value="holiday">Holiday / School Closure</option>
                         </select>
                     </div>
+
+                    <!-- Event specific fields -->
+                    <div x-show="category === 'event'" x-transition class="space-y-4 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1.5">Event Date</label>
+                                <input type="date" name="event_date" :required="category === 'event'" class="w-full px-4 py-2.5 premium-input rounded-xl text-xs font-medium focus:outline-none focus:premium-input-focus-violet">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1.5">Event Time</label>
+                                <input type="text" name="event_time" placeholder="e.g. 10:00 AM - 1:00 PM" class="w-full px-4 py-2.5 premium-input rounded-xl text-xs font-medium focus:outline-none focus:premium-input-focus-violet placeholder-slate-300">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Attachment Upload -->
                     <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1.5">Notice Content</label>
-                        <textarea name="content" rows="4" placeholder="Enter notice details..." required
+                        <label class="block text-xs font-semibold text-slate-700 mb-1.5">Attach Document / Image (Optional)</label>
+                        <input type="file" name="attachment" class="w-full px-4 py-2 premium-input rounded-xl text-xs font-medium focus:outline-none focus:premium-input-focus-violet bg-white">
+                        <span class="text-[10px] text-slate-450 mt-1 block">Supports Image (JPEG, PNG, JPG, GIF) or Document (PDF, DOC, DOCX) up to 5MB.</span>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1.5">Description / Content</label>
+                        <textarea name="content" rows="4" placeholder="Enter notice/event details..." required
                                   class="w-full px-4 py-2.5 premium-input rounded-xl text-xs font-medium focus:outline-none focus:premium-input-focus-violet placeholder-slate-300 resize-none"></textarea>
                     </div>
                     <div x-data="{ publishNow: true }">
@@ -122,8 +145,8 @@
                     </div>
                 </div>
                 <div class="mt-6 flex justify-end gap-3">
-                    <button type="button" @click="showModal = false" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-800 transition-colors cursor-pointer">Cancel</button>
-                    <button type="submit" class="px-5 py-2.5 bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold rounded-xl transition-all cursor-pointer shadow-sm">Publish Notice</button>
+                    <button type="button" @click="showModal = false" class="px-4 py-2 text-xs font-semibold text-slate-650 hover:text-slate-800 transition-colors cursor-pointer">Cancel</button>
+                    <button type="submit" class="px-5 py-2.5 bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold rounded-xl transition-all cursor-pointer shadow-sm">Publish</button>
                 </div>
             </form>
         </div>

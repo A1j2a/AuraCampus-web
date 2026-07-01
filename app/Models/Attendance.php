@@ -25,6 +25,35 @@ class Attendance extends Model
         'date' => 'date',
     ];
 
+    protected static function booted()
+    {
+        static::created(function ($attendance) {
+            $attendance->notifyParentIfAbsentOrLate();
+        });
+
+        static::updated(function ($attendance) {
+            if ($attendance->wasChanged('status')) {
+                $attendance->notifyParentIfAbsentOrLate();
+            }
+        });
+    }
+
+    public function notifyParentIfAbsentOrLate()
+    {
+        if (in_array($this->status, ['absent', 'late'])) {
+            $statusLabel = ucfirst($this->status);
+            $student = $this->student;
+            if ($student) {
+                \App\Models\Notification::create([
+                    'user_id' => $student->id,
+                    'title'   => "Attendance Alert: {$statusLabel}",
+                    'body'    => ($student->name ?? 'Your child') . " was marked {$this->status} on " . $this->date->format('d M Y') . ".",
+                    'type'    => 'alerts',
+                ]);
+            }
+        }
+    }
+
     public function student(): BelongsTo
     {
         return $this->belongsTo(User::class, 'student_id');

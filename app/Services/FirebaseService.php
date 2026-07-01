@@ -74,7 +74,7 @@ class FirebaseService
                     'title' => $title,
                     'body' => $body,
                 ],
-                'data' => $formattedData,
+                'data' => (object) $formattedData,
                 'android' => [
                     'notification' => [
                         'sound' => 'default',

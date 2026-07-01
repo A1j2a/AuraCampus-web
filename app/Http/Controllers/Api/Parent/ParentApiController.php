@@ -142,6 +142,8 @@ class ParentApiController extends Controller
             'body'  => $n->content,
             'tag'   => strtoupper($n->type === 'general' ? 'info' : $n->type),
             'date'  => $n->published_at?->format('d M Y') ?? $n->created_at->format('d M Y'),
+            'attachmentUrl' => $n->attachment_path ? url('storage/' . $n->attachment_path) : null,
+            'attachmentType'=> $n->attachment_type,
         ]);
 
         return $this->successResponse([
@@ -188,11 +190,12 @@ class ParentApiController extends Controller
                 ];
             }),
             'upcomingEvents' => $upcomingEvents->map(fn($ev) => [
-                'id'    => (string) $ev->id,
-                'day'   => $ev->event_date->format('d'),
-                'month' => strtoupper($ev->event_date->format('M')),
-                'title' => $ev->title,
-                'meta'  => $ev->event_time ? $ev->event_time . ($ev->organizer ? ' • ' . $ev->organizer : '') : null,
+                'id'       => (string) $ev->id,
+                'day'      => $ev->event_date->format('d'),
+                'month'    => strtoupper($ev->event_date->format('M')),
+                'title'    => $ev->title,
+                'meta'     => $ev->event_time ? $ev->event_time . ($ev->organizer ? ' • ' . $ev->organizer : '') : null,
+                'imageUrl' => $ev->banner_image_url ? url('storage/' . $ev->banner_image_url) : null,
             ]),
             'recentAnnouncements' => $recentAnnouncements,
         ]);
@@ -531,6 +534,22 @@ class ParentApiController extends Controller
 
         $leaveRequest->students()->attach($student->id);
 
+        try {
+            $classTeacherId = $student->studentDetail?->class?->teacher_id;
+            if ($classTeacherId) {
+                $fromDate = \Carbon\Carbon::parse($leaveRequest->from_date)->format('d M Y');
+                $toDate = \Carbon\Carbon::parse($leaveRequest->to_date)->format('d M Y');
+                Notification::create([
+                    'user_id' => $classTeacherId,
+                    'title'   => "New Leave Request: " . $student->name,
+                    'body'    => $student->name . " has applied for leave from " . $fromDate . " to " . $toDate . ".",
+                    'type'    => 'academic',
+                ]);
+            }
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("Failed to notify teacher on leave request: " . $e->getMessage());
+        }
+
         return $this->successResponse([
             'id'     => $leaveRequest->id,
             'status' => $leaveRequest->status,
@@ -590,19 +609,31 @@ class ParentApiController extends Controller
 
         return $this->successResponse(
             $notifications->map(function ($n) use ($categoryColors) {
-                $category = $n->type ?? 'general';
-                $style    = $categoryColors[$category] ?? $categoryColors['general'];
-                $diffMins = now()->diffInMinutes($n->created_at);
+                $rawCategory = $n->type ?? 'general';
+                $mappedCategory = ($rawCategory === 'academic') ? 'academic' : 'alerts';
+                
+                // Get style based on original or mapped category
+                $style = $categoryColors[$rawCategory] ?? $categoryColors['general'];
+                if ($mappedCategory === 'alerts' && !isset($categoryColors[$rawCategory])) {
+                    $style = $categoryColors['alerts'];
+                }
+                
+                $createdAt = $n->created_at ? \Illuminate\Support\Carbon::parse($n->created_at) : now();
+                $diffMins = (int) abs(now()->diffInMinutes($createdAt));
+                
                 $time = $diffMins < 60
                     ? $diffMins . 'm ago'
                     : ($diffMins < 1440 ? floor($diffMins / 60) . 'h ago' : 'Earlier');
 
                 return [
                     'id'       => (string) $n->id,
-                    'category' => $category,
+                    'category' => $mappedCategory,
                     'title'    => $n->title,
                     'body'     => $n->body,
+                    'image_url' => $n->image_url,
+                    'document_url' => $n->document_url,
                     'time'     => $time,
+                    'created_at' => $createdAt->toIso8601String(),
                     'isUnread' => is_null($n->read_at),
                     'color'    => $style['color'],
                     'bgLight'  => $style['bgLight'],

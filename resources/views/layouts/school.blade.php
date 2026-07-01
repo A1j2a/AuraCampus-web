@@ -174,6 +174,33 @@
                 <span class="material-symbols-outlined text-[20px]" data-icon="description">description</span>
                 <span x-show="!sidebarCollapsed" class="text-xs font-medium">Report Cards</span>
             </a>
+
+            <!-- Homework Management -->
+            <a href="{{ route('school.homework.index') }}" 
+               :class="sidebarCollapsed ? 'justify-center px-2' : 'px-4'"
+               class="flex items-center gap-3 py-2.5 rounded-xl transition-all duration-200 ease-in-out {{ request()->routeIs('school.homework.*') ? 'bg-surface-tint text-white font-semibold shadow-sm' : 'text-slate-400 hover:bg-white/10 hover:text-slate-300' }}"
+               title="Homework">
+                <span class="material-symbols-outlined text-[20px]" data-icon="assignment">assignment</span>
+                <span x-show="!sidebarCollapsed" class="text-xs font-medium">Homework</span>
+            </a>
+
+            <!-- Curriculum Progress Tracker -->
+            <a href="{{ route('school.curriculum.index') }}" 
+               :class="sidebarCollapsed ? 'justify-center px-2' : 'px-4'"
+               class="flex items-center gap-3 py-2.5 rounded-xl transition-all duration-200 ease-in-out {{ request()->routeIs('school.curriculum.index') ? 'bg-surface-tint text-white font-semibold shadow-sm' : 'text-slate-400 hover:bg-white/10 hover:text-slate-300' }}"
+               title="Curriculum Tracker">
+                <span class="material-symbols-outlined text-[20px]" data-icon="auto_stories">auto_stories</span>
+                <span x-show="!sidebarCollapsed" class="text-xs font-medium">Curriculum Tracker</span>
+            </a>
+
+            <!-- PTC Bookings -->
+            <a href="{{ route('school.ptc.index') }}" 
+               :class="sidebarCollapsed ? 'justify-center px-2' : 'px-4'"
+               class="flex items-center gap-3 py-2.5 rounded-xl transition-all duration-200 ease-in-out {{ request()->routeIs('school.ptc.index') ? 'bg-surface-tint text-white font-semibold shadow-sm' : 'text-slate-400 hover:bg-white/10 hover:text-slate-300' }}"
+               title="PTC Bookings">
+                <span class="material-symbols-outlined text-[20px]" data-icon="handshake">handshake</span>
+                <span x-show="!sidebarCollapsed" class="text-xs font-medium">PTC Bookings</span>
+            </a>
         </nav>
 
         <div class="mt-auto pt-4 border-t border-white/10 space-y-1">

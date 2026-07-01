@@ -23,6 +23,9 @@ use App\Http\Controllers\School\FeePaymentController;
 use App\Http\Controllers\School\SearchController;
 use App\Http\Controllers\School\SupportController as SchoolSupportController;
 use App\Http\Controllers\School\LeaveRequestController;
+use App\Http\Controllers\School\HomeworkManagementController;
+use App\Http\Controllers\School\CurriculumTrackerController;
+use App\Http\Controllers\School\PtcManagementController;
 use App\Http\Controllers\Auth\AuthController;
 use Illuminate\Support\Facades\Route;
 
@@ -158,6 +161,19 @@ Route::middleware(['auth', 'verified', 'role:school-admin'])
         // Leave Requests (from parents)
         Route::patch('/leave-requests/{leaveRequest}/approve', [LeaveRequestController::class, 'approve'])->name('leave-requests.approve');
         Route::patch('/leave-requests/{leaveRequest}/reject', [LeaveRequestController::class, 'reject'])->name('leave-requests.reject');
+
+        // Homework Management
+        Route::get('/homework', [HomeworkManagementController::class, 'index'])->name('homework.index');
+        Route::get('/homework/{homework}', [HomeworkManagementController::class, 'show'])->name('homework.show');
+        Route::delete('/homework/{homework}', [HomeworkManagementController::class, 'destroy'])->name('homework.destroy');
+
+        // Curriculum Tracker
+        Route::get('/curriculum', [CurriculumTrackerController::class, 'index'])->name('curriculum.index');
+
+        // PTC Bookings Management
+        Route::get('/ptc', [PtcManagementController::class, 'index'])->name('ptc.index');
+        Route::post('/ptc/{booking}/cancel', [PtcManagementController::class, 'cancel'])->name('ptc.cancel');
+        Route::post('/ptc/{booking}/reschedule', [PtcManagementController::class, 'reschedule'])->name('ptc.reschedule');
     });
 
 Route::middleware('auth')->group(function () {

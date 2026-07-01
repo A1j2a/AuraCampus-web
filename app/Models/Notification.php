@@ -16,6 +16,8 @@ class Notification extends Model
         'user_id',
         'title',
         'body',
+        'image_url',
+        'document_url',
         'type',
         'read_at',
     ];
@@ -44,7 +46,9 @@ class Notification extends Model
                         $notification->body,
                         [
                             'id' => (string) $notification->id,
-                            'type' => (string) $notification->type
+                            'type' => (string) $notification->type,
+                            'image_url' => $notification->image_url ? url('storage/' . $notification->image_url) : null,
+                            'document_url' => $notification->document_url ? url('storage/' . $notification->document_url) : null,
                         ]
                     );
                     $sentTokens[] = $user->fcm_token;
@@ -64,7 +68,9 @@ class Notification extends Model
                                 $notification->body,
                                 [
                                     'id' => (string) $notification->id,
-                                    'type' => (string) $notification->type
+                                    'type' => (string) $notification->type,
+                                    'image_url' => $notification->image_url ? url('storage/' . $notification->image_url) : null,
+                                    'document_url' => $notification->document_url ? url('storage/' . $notification->document_url) : null,
                                 ]
                             );
                             $sentTokens[] = $parent->fcm_token;

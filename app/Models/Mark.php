@@ -21,6 +21,37 @@ class Mark extends Model
         'entered_by',
     ];
 
+    protected static function booted()
+    {
+        static::created(function ($mark) {
+            $mark->notifyStudentAndParent();
+        });
+
+        static::updated(function ($mark) {
+            if ($mark->wasChanged('marks_obtained') || $mark->wasChanged('grade')) {
+                $mark->notifyStudentAndParent();
+            }
+        });
+    }
+
+    public function notifyStudentAndParent()
+    {
+        try {
+            $schedule = $this->examSchedule;
+            $examName = $schedule?->exam?->name ?? 'Exam';
+            $subjectName = $schedule?->subject?->name ?? 'Subject';
+            
+            \App\Models\Notification::create([
+                'user_id' => $this->student_id,
+                'title'   => "Marks Released: {$examName}",
+                'body'    => "Your marks for {$subjectName} have been published. Marks obtained: {$this->marks_obtained}/{$schedule->max_marks} (Grade: {$this->grade}).",
+                'type' => 'academic',
+            ]);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("Failed to notify student/parent on marks release: " . $e->getMessage());
+        }
+    }
+
     public function examSchedule(): BelongsTo
     {
         return $this->belongsTo(ExamSchedule::class);
